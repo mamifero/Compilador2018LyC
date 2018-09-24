@@ -81,20 +81,20 @@ decision: IF condicion THEN lista_sentencias ENDIF {printf("decision OK\n");};
 
 condicion: P_A evaluable P_C {printf("condicion OK\n");};
 
-evaluable: condicion_simple {printf("condicion simple OK\n");} | condicion_multiple {printf("condicion multiple OK\n");};
+evaluable: condicion_simple | condicion_multiple;
 
 condicion_simple: expresion comparador expresion | operacion_between | operacion_inlist;
 
 condicion_multiple: condicion_simple AND condicion_simple | condicion_simple OR condicion_simple | NOT condicion_simple;
 
-comparador: OP_COMPARACION_MAYOR_A | OP_COMPARACION_MAYOR_IGUAL_A | OP_COMPARACION_MENOR_A 
+comparador: OP_COMPARACION_DISTINTO | OP_COMPARACION_MAYOR_A | OP_COMPARACION_MAYOR_IGUAL_A | OP_COMPARACION_MENOR_A 
             | OP_COMPARACION_MENOR_IGUAL_A | OP_COMPARACION_IGUAL {printf("Comparador OK\n");};
 
-operacion_between: BETWEEN P_A ID COMA C_A expresion PUNTOCOMA expresion C_C P_C {printf("operacion between OK\n");};
+operacion_between: BETWEEN P_A ID COMA C_A expresion PUNTOCOMA expresion C_C P_C {printf("between OK\n");};
 
-operacion_inlist: INLIST P_A ID COMA LL_A lista_expresiones LL_C P_C {printf("Inlist OK\n");};
+operacion_inlist: INLIST P_A ID COMA C_A lista_expresiones C_C P_C {printf("Inlist OK\n");};
 
-lista_expresiones: expresion PUNTOCOMA expresion | lista_expresiones PUNTOCOMA expresion;
+lista_expresiones: lista_expresiones PUNTOCOMA expresion | expresion;
 
 asignacion: ID ASIG expresion | ID ASIG CADENA {printf("Asignacion OK\n");};
 

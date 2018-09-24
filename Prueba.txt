@@ -22,7 +22,7 @@ ENDIF
 
 WHILE(b!=a)
 THEN
-d = d * 2;
+d = d * 2
 ENDWHILE
 
 
@@ -31,7 +31,7 @@ THEN
 d = d * 2
 ENDWHILE
 
-IF(INLIST(a,[9.6,4.5,8.5]))
+IF(INLIST(a,[9.6;4.5;8.5]))
 THEN
 WRITE "Esta en la lista"
 ENDIF

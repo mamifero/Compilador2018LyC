@@ -1,1 +1,29 @@
-var1 = a + 3
+DECVAR
+a,b:FLOAT
+c:INTEGER
+d:FLOAT
+e,f:INTEGER
+g:STRING
+ENDDEC
+
+const1 = 9.9
+const2 = 9.
+const3= .9
+
+a = a+b
+d = a+b
+d= e*f
+
+IF(a>b)
+THEN
+g = "sarasa"
+ENDIF
+
+WHILE(a,[b;d])
+THEN
+d = d * 2;
+ENDWHILE
+
+WRITE "sarasa"
+READ g
+WRITE g

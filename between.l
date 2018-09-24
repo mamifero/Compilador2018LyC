@@ -29,8 +29,8 @@ CADENA					\"({LETRA}|{DIGITO})*\"
 "-"						{return OP_RESTA;}
 "*"						{return OP_MUL;}
 "/"						{return OP_DIV;}
-"("						{return P_A;}
-")"						{return P_C;}
+"\("						{return P_A;}
+"\)"						{return P_C;}
 ";"						{return PUNTOCOMA;}             
 ":"         			{return DOSPUNTOS;}
 ","         			{return COMA;}

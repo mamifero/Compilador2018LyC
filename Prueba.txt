@@ -22,7 +22,7 @@ ENDIF
 
 WHILE(BETWEEN(a,[b;d]))
 THEN
-d = d * 2;
+d = d * 2
 ENDWHILE
 
 IF(INLIST(a,[9.6,4.5,8.5]))

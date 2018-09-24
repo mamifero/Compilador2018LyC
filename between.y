@@ -57,12 +57,12 @@ char *yytext;
 %token ENTERO REAL CADENA
 %%
 
-program: programa;
+program: programa { printf("Compilacion OK");};
 
-programa: bloque_declaracion lista_sentencias { printf("Compilacion OK");}
-		|lista_sentencias { printf("Compilacion OK");};
+programa: bloque_declaracion lista_sentencias 	
+		|lista_sentencias ;
 
-bloque_declaracion: DECVAR lista_declaraciones ENDDEC;
+bloque_declaracion: DECVAR lista_declaraciones ENDDEC { printf("Declaraciones OK");};
 
 lista_declaraciones: lista_declaraciones declaracion 
 					| declaracion {printf("Declaracion OK\n");};

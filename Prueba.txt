@@ -19,7 +19,7 @@ THEN
 g = "sarasa"
 ENDIF
 
-WHILE(a,[b;d])
+WHILE(BETWEEN(a,[b;d]))
 THEN
 d = d * 2;
 ENDWHILE

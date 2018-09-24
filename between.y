@@ -61,7 +61,7 @@ program: programa { printf("Compilacion OK\n");};
 
 programa: bloque_declaracion lista_sentencias { printf("programa OK\n");};
 
-bloque_declaracion: DECVAR lista_declaraciones ENDDEC { printf("bloque_declaracion OK\n");};
+bloque_declaracion: DECVAR lista_declaraciones ENDDEC { printf("Declaraciones OK");};
 
 lista_declaraciones: lista_declaraciones declaracion
 					| declaracion;

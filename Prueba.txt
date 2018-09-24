@@ -17,8 +17,14 @@ d= e*f
 
 IF(a>b)
 THEN
-g = "sarasa"
+const1 = 9
 ENDIF
+
+WHILE(b!=a)
+THEN
+d = d * 2;
+ENDWHILE
+
 
 WHILE(BETWEEN(a,[b;d]))
 THEN
@@ -29,6 +35,8 @@ IF(INLIST(a,[9.6,4.5,8.5]))
 THEN
 WRITE "Esta en la lista"
 ENDIF
+
+g = "sarasa"
 
 WRITE "sarasa"
 READ g

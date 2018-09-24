@@ -17,9 +17,9 @@ COMENTARIO_INICIO 		"-/"
 COMENTARIO_FIN 			"/-"
 COMENTARIOS				COMENTARIO_INICIO[^"\n]+COMENTARIO_FIN
 
-CADENA               	\"[^"\n]+\"
-REAL              		[{DIGITO}*"."{DIGITO}+|{DIGITO}+"."] 
-ENTERO               	{DIGITO}+
+REAL					{DIGITO}*"."{DIGITO}+|{DIGITO}+"."
+ENTERO					{DIGITO}+
+CADENA					\"({LETRA}|{DIGITO})*\"
 %%
 
 "="						{return ASIG;}
@@ -64,10 +64,10 @@ ENTERO               	{DIGITO}+
 "WRITE"   				{return WRITE;}
 "READ"   				{return READ;}
 
-{ID}					{return ID;}
-{ENTERO}				{return ENTERO;}
-{CADENA} 				{return CADENA;}
-{REAL} 					{return REAL;}
+{ID}		{return ID;}
+{REAL} 		{return REAL;}
+{ENTERO}	{return ENTERO;}
+{CADENA} 	{return CADENA;}
 
 {COMENTARIOS}
 "\n"      		

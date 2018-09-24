@@ -6,9 +6,10 @@ e,f:INTEGER
 g:STRING
 ENDDEC
 
-const1 = 9.9
-const2 = 9.
-const3= .9
+const1 = 9
+const2 = 9.9
+const3= 9.
+const4=.9
 
 a = a+b
 d = a+b

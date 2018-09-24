@@ -57,30 +57,38 @@ char *yytext;
 %token ENTERO REAL CADENA
 %%
 
+<<<<<<< HEAD
 program: programa { printf("Compilacion OK");};
 
 programa: bloque_declaracion lista_sentencias 	
 		|lista_sentencias ;
 
 bloque_declaracion: DECVAR lista_declaraciones ENDDEC { printf("Declaraciones OK");};
+=======
+program: programa { printf("Compilacion OK\n");};
 
-lista_declaraciones: lista_declaraciones declaracion 
-					| declaracion {printf("Declaracion OK\n");};
+programa: bloque_declaracion lista_sentencias { printf("programa OK\n");};
 
-declaracion: lista_ids DOSPUNTOS tipo_variable;
+bloque_declaracion: DECVAR lista_declaraciones ENDDEC { printf("bloque_declaracion OK\n");};
+>>>>>>> 069074fa67e495f9f46f6964eadab58821c2a229
 
-lista_ids: lista_ids COMA ID 
+lista_declaraciones: lista_declaraciones declaracion
+					| declaracion;
+
+declaracion: lista_ids DOSPUNTOS tipo_variable { printf("Declaracion OK\n");};
+
+lista_ids: lista_ids COMA ID {printf("lista_ids OK\n");}
 			| ID {printf("ID OK\n");};
 
 tipo_variable: FLOAT | STRING | INTEGER {printf("Tipo variable OK\n");};
 
-lista_sentencias: lista_sentencias sentencia | sentencia;
+lista_sentencias: sentencia lista_sentencias | sentencia {printf("sentencia OK\n");};
 
-sentencia: iteracion | decision | asignacion | entrada | salida;
+sentencia: iteracion | decision | asignacion | entrada | salida {printf("salida OK\n");};
 
-decision: IF condicion THEN lista_sentencias ENDIF;
+decision: IF condicion THEN lista_sentencias ENDIF {printf("desicion OK\n");};
 
-condicion: P_A evaluable P_C;
+condicion: P_A evaluable P_C {printf("condicion OK\n");};
 
 evaluable: condicion_simple | condicion_multiple;
 
@@ -91,19 +99,19 @@ condicion_multiple: condicion_simple AND condicion_simple | condicion_simple OR 
 comparador: OP_COMPARACION_MAYOR_A | OP_COMPARACION_MAYOR_IGUAL_A | OP_COMPARACION_MENOR_A 
             | OP_COMPARACION_MENOR_IGUAL_A | OP_COMPARACION_IGUAL {printf("Comparador OK\n");};
 
-operacion_between: BETWEEN P_A ID COMA LL_A expresion PUNTOCOMA expresion LL_C P_C;
+operacion_between: BETWEEN P_A ID COMA LL_A expresion PUNTOCOMA expresion LL_C P_C {printf("Between OK\n");};
 
-operacion_inlist: INLIST P_A ID COMA LL_A lista_expresiones LL_C P_C;
+operacion_inlist: INLIST P_A ID COMA LL_A lista_expresiones LL_C P_C {printf("Inlist OK\n");};
 
 lista_expresiones: expresion PUNTOCOMA expresion | lista_expresiones PUNTOCOMA expresion;
 
-asignacion: ID ASIG expresion;
+asignacion: ID ASIG expresion {printf("Asignacion OK\n");};
 
 salida:  WRITE CADENA | WRITE ID;
 
-entrada: READ ID;
+entrada: READ ID {printf("entrada OK\n");};
 
-iteracion: WHILE condicion THEN lista_sentencias ENDWHILE
+iteracion: WHILE condicion THEN lista_sentencias ENDWHILE {printf("While OK\n");};
 
 
 

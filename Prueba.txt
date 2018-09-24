@@ -6,9 +6,10 @@ e,f:INTEGER
 g:STRING
 ENDDEC
 
-const1 = 9.9
-const2 = 9.
-const3= .9
+const1 = 9
+const2 = 9.9
+const3= 9.
+const4=.9
 
 a = a+b
 d = a+b
@@ -19,10 +20,15 @@ THEN
 g = "sarasa"
 ENDIF
 
-WHILE(a,[b;d])
+WHILE(BETWEEN(a,[b;d]))
 THEN
 d = d * 2;
 ENDWHILE
+
+IF(INLIST(a,[9.6,4.5,8.5]))
+THEN
+WRITE "Esta en la lista"
+ENDIF
 
 WRITE "sarasa"
 READ g

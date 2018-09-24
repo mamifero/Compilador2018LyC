@@ -3,13 +3,17 @@
 #include <stdlib.h>
 #include <conio.h>
 #include "y.tab.h"
-int yylval;
 int yystopparser=0;
 FILE  *yyin;
-char *yyltext;
-char *yytext;
 
 %}
+
+%union {
+int int_val;
+double float_val;
+char *str_val;
+}
+
 %start program
 
 %token ID
@@ -61,19 +65,20 @@ program: programa { printf("Compilacion OK\n");};
 
 programa: bloque_declaracion lista_sentencias { printf("programa OK\n");};
 
-bloque_declaracion: DECVAR lista_declaraciones ENDDEC { printf("Declaraciones OK");};
+bloque_declaracion: DECVAR lista_declaraciones ENDDEC { printf("Declaraciones OK\n");};
 
 lista_declaraciones: lista_declaraciones declaracion
 					| declaracion;
 
-declaracion: lista_ids DOSPUNTOS tipo_variable { printf("Declaracion OK\n");};
+declaracion: lista_ids {printf("lista_ids OK\n");} DOSPUNTOS tipo_variable { printf("Declaracion OK\n");};
 
-lista_ids: lista_ids COMA ID {printf("lista_ids OK\n");}
-			| ID {printf("ID OK\n");};
+lista_ids: lista_ids COMA ID  {;printf("ID en DECVAR es: %s\n", $<str_val>$);}
+			| ID {;printf("ID en DECVAR es: %s\n", $<str_val>$);};
 
-tipo_variable: FLOAT | STRING | INTEGER {printf("Tipo variable OK\n");};
+tipo_variable: FLOAT | STRING | INTEGER;
 
-lista_sentencias: sentencia lista_sentencias | sentencia {printf("sentencia OK\n");};
+lista_sentencias: lista_sentencias sentencia {printf("sentencia OK\n");} 
+				| sentencia {printf("sentencia f OK\n");};
 
 sentencia: iteracion | decision | asignacion | entrada | salida {printf("salida OK\n");};
 
@@ -96,7 +101,8 @@ operacion_inlist: INLIST P_A ID COMA C_A lista_expresiones C_C P_C {printf("Inli
 
 lista_expresiones: lista_expresiones PUNTOCOMA expresion | expresion;
 
-asignacion: ID ASIG expresion | ID ASIG CADENA {printf("Asignacion OK\n");};
+asignacion: ID ASIG expresion {printf("Asignacion Num OK, ID:%s \n", $<str_val>1);}
+			| ID ASIG CADENA {printf("Asignacion Str OK, ID:%s \n", $<str_val>1);}
 
 salida:  WRITE CADENA | WRITE ID;
 
@@ -125,9 +131,9 @@ termino:
        ;
 
 factor: 
-      ID 
-      | ENTERO {$1 = yylval ;printf("ENTERO es: %d\n", yylval);}
-      | REAL {$1 = yylval ;printf("REAL es: %d\n", yylval);}
+      ID {;printf("ID en FACTOR es: %s \n", $<str_val>$);}
+      | ENTERO {;printf("ENTERO en FACTOR es: %d \n", $<int_val>$);}
+      | REAL {printf("REAL en FACTOR es: %f \n", $<float_val>$);}
       |P_A expresion P_C  
     ;
 

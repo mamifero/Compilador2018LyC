@@ -2,10 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
+#include <string.h>
+
 #include "y.tab.h"
 FILE  *yyin;
-int yylval;
-
+char auxS[100];
 %}
 %option noyywrap  
 %option yylineno 
@@ -64,10 +65,10 @@ CADENA					\"({LETRA}|{DIGITO}|" ")*\"
 "WRITE"   				{return WRITE;}
 "READ"   				{return READ;}
 
-{ID}		{return ID;}
-{REAL} 		{return REAL;}
-{ENTERO}	{return ENTERO;}
-{CADENA} 	{return CADENA;}
+{ID}		{sprintf(auxS,"%s", yytext);yylval.str_val=auxS; return ID;}
+{REAL} 		{yylval.float_val = atof(yytext); return REAL;}
+{ENTERO}	{yylval.int_val = atoi(yytext); return ENTERO;}
+{CADENA} 	{sprintf(auxS,"%s", yytext);yylval.str_val=auxS; return CADENA;}
 
 {COMENTARIOS}
 "\n"      		

@@ -57,20 +57,11 @@ char *yytext;
 %token ENTERO REAL CADENA
 %%
 
-<<<<<<< HEAD
-program: programa { printf("Compilacion OK");};
-
-programa: bloque_declaracion lista_sentencias 	
-		|lista_sentencias ;
-
-bloque_declaracion: DECVAR lista_declaraciones ENDDEC { printf("Declaraciones OK");};
-=======
 program: programa { printf("Compilacion OK\n");};
 
 programa: bloque_declaracion lista_sentencias { printf("programa OK\n");};
 
-bloque_declaracion: DECVAR lista_declaraciones ENDDEC { printf("bloque_declaracion OK\n");};
->>>>>>> 069074fa67e495f9f46f6964eadab58821c2a229
+bloque_declaracion: DECVAR lista_declaraciones ENDDEC { printf("Declaraciones OK");};
 
 lista_declaraciones: lista_declaraciones declaracion
 					| declaracion;

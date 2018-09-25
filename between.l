@@ -20,7 +20,7 @@ COMENTARIOS				COMENTARIO_INICIO[^"\n]+COMENTARIO_FIN
 
 REAL					{DIGITO}*"."{DIGITO}+|{DIGITO}+"."
 ENTERO					{DIGITO}+
-CADENA					\"({LETRA}|{DIGITO}|" ")*\"
+CADENA					\"({LETRA}|{DIGITO}|" "){0,30}\"
 %%
 
 "="						{return ASIG;}

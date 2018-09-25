@@ -6,18 +6,16 @@ e,f:INTEGER
 g:STRING
 ENDDEC
 
+-/soy un comentario/-
+
 const1 = 9
 const2 = 9.9
 const3= 9.
 const4=.9
 
--/ soy un comentario /-
-
 a = a+b
 d = a+b
 d= e*f
-
--/ soy otro comentario -/soy un comentario de otro nivel /-/-
 
 IF(a>b)
 THEN
@@ -40,8 +38,9 @@ THEN
 WRITE "Esta en la lista"
 ENDIF
 
-g = "soy una cadena"
+g = "soy una cadena@"
 
-WRITE "soy una cadena para una salida"
+WRITE "soy una cade%na para una salida"
 READ g
 WRITE g
+-/ un comentario -/otro comentario adentro/- el mismo comentario/-

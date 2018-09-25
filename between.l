@@ -16,11 +16,13 @@ LETRA					[a-zA-Z]
 ID						{LETRA}({LETRA}|{DIGITO}|_)*
 COMENTARIO_INICIO 		"-/"
 COMENTARIO_FIN 			"/-"
-COMENTARIOS				COMENTARIO_INICIO[^"\n]+COMENTARIO_FIN
+COMENTARIOS				\-\/([^"\/\-"|"\-\/"]|\n)*\/\-
+COMENTARIOS_ANIDADOS	\-\/([^"\/\-"|"\-\/"]|\n)*{COMENTARIOS}*([^"\/\-"|"\-\/"]|\n)*\/\-
+
 
 REAL					{DIGITO}*"."{DIGITO}+|{DIGITO}+"."
 ENTERO					{DIGITO}+
-CADENA					\"({LETRA}|{DIGITO}|" "){0,30}\"
+CADENA					\"[^"\n]*\"
 %%
 
 "="						{return ASIG;}
@@ -71,6 +73,7 @@ CADENA					\"({LETRA}|{DIGITO}|" "){0,30}\"
 {CADENA} 	{sprintf(auxS,"%s", yytext);yylval.str_val=auxS; return CADENA;}
 
 {COMENTARIOS}
+{COMENTARIOS_ANIDADOS}
 "\n"      		
 "\t"		
 

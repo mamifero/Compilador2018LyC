@@ -78,7 +78,7 @@ lista_ids: lista_ids COMA ID  {;printf("ID en DECVAR es: %s\n", $<str_val>$);}
 tipo_variable: FLOAT | STRING | INTEGER;
 
 lista_sentencias: lista_sentencias sentencia {printf("sentencia OK\n");} 
-				| sentencia {printf("sentencia f OK\n");};
+				| sentencia {printf("sentencia OK\n");};
 
 sentencia: iteracion | decision | asignacion | entrada | salida {printf("salida OK\n");};
 
@@ -101,8 +101,9 @@ operacion_inlist: INLIST P_A ID COMA C_A lista_expresiones C_C P_C {printf("Inli
 
 lista_expresiones: lista_expresiones PUNTOCOMA expresion | expresion;
 
-asignacion: ID ASIG expresion {printf("Asignacion Num OK, ID:%s \n", $<str_val>1);}
-			| ID ASIG CADENA {printf("Asignacion Str OK, ID:%s \n", $<str_val>1);}
+asignacion: ID ASIG {printf("Asignacion ID:%s \n", $<str_val>1);} asignable;
+			
+asignable: expresion {printf("Num OK\n");}| CADENA{printf("STR:%s \n", $<str_val>1);};
 
 salida:  WRITE CADENA | WRITE ID;
 

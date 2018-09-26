@@ -75,7 +75,9 @@ CADENA					\"[^"\n]*\"
 {COMENTARIOS}
 {COMENTARIOS_ANIDADOS}
 "\n"      		
-"\t"		
+"\r"
+"\t"
+" "		
 
 
 

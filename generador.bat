@@ -1,10 +1,10 @@
-flex between.l
+flex tpgrupo9.l
 pause
-bison -dyv between.y
+bison -dyv tpgrupo9.y
 pause
-gcc lex.yy.c y.tab.c -o TPFinal.exe
+gcc lex.yy.c y.tab.c -o tpgrupo9.exe
 pause
-TPFinal.exe Prueba.txt
+tpgrupo9.exe Prueba.txt
 pause
 del lex.yy.c
 del y.tab.c

@@ -36,6 +36,8 @@ ENDWHILE
 IF(INLIST(a,[9.6;(b+d)/b;b*d]))
 THEN
 WRITE "Esta en la lista"
+ELSE
+WRITE "un else"
 ENDIF
 
 g = "soy una cadena@"

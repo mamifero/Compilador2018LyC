@@ -11,6 +11,7 @@ char auxS[100];
 #define LIM_REAL 2147483647
 #define LIM_INT 32768
 #define LIM_STR 30
+#define LIM_ID 30
 %}
 %option noyywrap  
 %option yylineno 
@@ -71,7 +72,13 @@ CADENA					\"[^"\n]*\"
 "WRITE"   				{return WRITE;}
 "READ"   				{return READ;}
 
-{ID}		{sprintf(auxS,"%s", yytext);yylval.str_val=auxS; return ID;}
+{ID}		{	sprintf(auxS,"%s", yytext);
+				if(validarLongitud(ID) == 0) 
+	 				mostrarError(yytext);
+				yylval.str_val=auxS;
+				return ID;
+			}
+
 {REAL} 		{	if(validarLongitud(REAL) == 0) 
 	 				mostrarError(yytext);
 				yylval.float_val = atof(yytext); 
@@ -97,8 +104,12 @@ CADENA					\"[^"\n]*\"
 {COMENTARIOS_ANIDADOS}
 "\n"      		
 "\r"
+"\r\n"
 "\t"
 " "
+
+.    {		printf("Caracter invalido!");
+			exit(1);}
 
 %%
 
@@ -116,6 +127,11 @@ int validarLongitud(int tipo){
 			break;
 		case REAL:
 			if(atof(yytext) >= -LIM_REAL && atof(yytext) <= LIM_REAL-1)
+				return 1;
+			return 0;
+			break;
+		case ID:
+			if(strlen(yytext) <= LIM_ID)
 				return 1;
 			return 0;
 			break;

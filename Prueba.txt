@@ -9,9 +9,14 @@ ENDDEC
 -/soy un comentario/-
 
 const1 = 9
-const2 = 4294967295.1
+const2 = 57.1
 const3= 9.
 const4=.9
+
+const1 = -9
+const2 = -429.1
+const3= -9.
+const4=-.9
 
 a = a+b
 d = a+b
@@ -39,6 +44,8 @@ WRITE "Esta en la lista"
 ELSE
 WRITE "un else"
 ENDIF
+
+WRITE ""
 
 g = "soy una cadena@"
 

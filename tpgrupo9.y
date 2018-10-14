@@ -82,7 +82,8 @@ lista_sentencias: lista_sentencias sentencia {printf("sentencia OK\n");}
 
 sentencia: iteracion | decision | asignacion | entrada | salida {printf("salida OK\n");};
 
-decision: IF condicion THEN lista_sentencias ENDIF {printf("decision OK\n");};
+decision: IF condicion THEN lista_sentencias ENDIF {printf("decision simple OK\n");}
+        | IF condicion THEN lista_sentencias ELSE lista_sentencias ENDIF {printf("decision compuesta OK\n");};
 
 condicion: P_A evaluable P_C {printf("condicion OK\n");};
 
@@ -158,3 +159,9 @@ int yyerror(void)
    system ("Pause");
    exit (1);
      }
+
+void mostrarError(char *mensaje) {
+  printf("ERROR!!!: %s\n", mensaje);
+  exit(1);
+}
+

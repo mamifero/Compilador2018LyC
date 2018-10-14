@@ -7,6 +7,10 @@
 #include "y.tab.h"
 FILE  *yyin;
 char auxS[100];
+
+#define LIM_REAL 2147483647
+#define LIM_INT 32768
+#define LIM_STR 30
 %}
 %option noyywrap  
 %option yylineno 
@@ -68,16 +72,56 @@ CADENA					\"[^"\n]*\"
 "READ"   				{return READ;}
 
 {ID}		{sprintf(auxS,"%s", yytext);yylval.str_val=auxS; return ID;}
-{REAL} 		{yylval.float_val = atof(yytext); return REAL;}
-{ENTERO}	{yylval.int_val = atoi(yytext); return ENTERO;}
-{CADENA} 	{sprintf(auxS,"%s", yytext);yylval.str_val=auxS; return CADENA;}
+{REAL} 		{	if(validarLongitud(REAL) == 0) 
+	 				mostrarError(yytext);
+				yylval.float_val = atof(yytext); 
+				return REAL;
+			}
+
+{ENTERO}	{ 	if(validarLongitud(ENTERO) == 0) 
+	 				mostrarError(yytext);
+				yylval.int_val = atoi(yytext); 
+				return ENTERO;
+			}
+
+{CADENA} 	{	if(validarLongitud(CADENA) == 0) 
+	 				mostrarError(yytext);
+				sprintf(auxS,"%s", yytext);
+				yylval.str_val=auxS; 
+				return CADENA;
+			}
+
+
 
 {COMENTARIOS}
 {COMENTARIOS_ANIDADOS}
 "\n"      		
 "\r"
 "\t"
-" "		
+" "
+
+%%
+
+int validarLongitud(int tipo){
+	switch(tipo){
+		case ENTERO:
+			if(atoi(yytext) >= -LIM_INT && atoi(yytext) <= LIM_INT-1)
+				return 1;
+			return 0;
+			break;
+		case CADENA:
+			if(strlen(yytext) <= LIM_STR) 
+				return 1;
+			return 0;
+			break;
+		case REAL:
+			if(atof(yytext) >= -LIM_REAL && atof(yytext) <= LIM_REAL-1)
+				return 1;
+			return 0;
+			break;
+	}
+	return 0;
+}
 
 
 

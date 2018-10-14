@@ -9,7 +9,7 @@ ENDDEC
 -/soy un comentario/-
 
 const1 = 9
-const2 = 9.9
+const2 = 4294967295.1
 const3= 9.
 const4=.9
 
@@ -42,7 +42,7 @@ ENDIF
 
 g = "soy una cadena@"
 
-WRITE "soy una cade%na para una salida"
+WRITE "soy una cade%na para salida"
 READ g
 WRITE g
 -/ un comentario -/otro comentario adentro/- el mismo comentario/-

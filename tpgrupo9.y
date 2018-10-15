@@ -25,7 +25,8 @@ struct tablaDeSimbolo
 };
 
 struct tablaDeSimbolo TOS[100];
-   	
+char tokens[100][100];  
+int indexTokens = 0; 	
 	
 int buscarEnTOS(char*);
 void insertar_ID_en_Tabla(char*);
@@ -33,6 +34,8 @@ void insertar_STRING_en_Tabla(char*);
 void insertar_ENTERO_en_Tabla(int);
 void insertar_REAL_en_Tabla(double);
 void mostrarTOS();
+void guardarTokens(char*);
+void asignarTipo(int);
 
 %}
 
@@ -100,10 +103,10 @@ lista_declaraciones: lista_declaraciones declaracion
 
 declaracion: lista_ids {printf("lista_ids OK\n");} DOSPUNTOS tipo_variable { printf("Declaracion OK\n");};
 
-lista_ids: lista_ids COMA ID  {;printf("ID en DECVAR es: %s\n", $<str_val>$);}
-      | ID {;printf("ID en DECVAR es: %s\n", $<str_val>$);};
+lista_ids: lista_ids COMA ID  {;printf("ID en DECVAR es: %s\n", $<str_val>$);insertar_ID_en_Tabla($<str_val>$);guardarTokens($<str_val>$);}
+      | ID {;printf("ID en DECVAR es: %s\n", $<str_val>$);insertar_ID_en_Tabla($<str_val>$);guardarTokens($<str_val>$);};
 
-tipo_variable: FLOAT | STRING | INTEGER;
+tipo_variable: FLOAT {;asignarTipo(3);} | STRING {;asignarTipo(1);} | INTEGER {;asignarTipo(2);};
 
 lista_sentencias: lista_sentencias sentencia {printf("sentencia OK\n");} 
         | sentencia {printf("sentencia OK\n");};
@@ -161,7 +164,7 @@ termino:
        ;
 
 factor: 
-      ID {;printf("ID en FACTOR es: %s \n", $<str_val>$);insertar_ID_en_Tabla($<str_val>$);}
+      ID {;printf("ID en FACTOR es: %s \n", $<str_val>$);}
       | ENTERO {;printf("ENTERO en FACTOR es: %d \n", $<int_val>$);insertar_ENTERO_en_Tabla($<int_val>$);}
       | REAL {printf("REAL en FACTOR es: %f \n", $<float_val>$);insertar_REAL_en_Tabla($<float_val>$);}
       |P_A expresion P_C  
@@ -245,6 +248,42 @@ void insertar_ENTERO_en_Tabla(int token)
 		strcpy(TOS[TOStop].valor, aux2);
 		TOStop++;
 	}
+}
+
+void guardarTokens(char* token)
+{
+	strcpy(tokens[indexTokens], token);
+	indexTokens++;
+}
+
+
+void asignarTipo(int tipo)
+{
+	int i;
+	int j;
+	for (i=0; i<indexTokens; i++)
+    {
+		for(j=0; j<TOStop; j++)
+		{
+
+			if(strcmp(TOS[j].nombre, tokens[i]) == 0)
+			{
+				switch (tipo)
+				{
+					case 1:
+						strcpy(TOS[j].tipo, "CADENA");
+					break;
+					case 2:
+						strcpy(TOS[j].tipo, "ENTERO");
+					break;
+					case 3:
+						strcpy(TOS[j].tipo, "REAL");
+					break;
+				}
+			}
+		}
+	}
+	indexTokens =0;
 }
 
 void insertar_REAL_en_Tabla(double token)

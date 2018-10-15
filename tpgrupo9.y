@@ -8,6 +8,9 @@
 int yylex();
 int yyerror();
 
+#define LIM_REAL 2147483647
+#define LIM_INT 32768
+#define LIM_STR 30
 
 int yystopparser=0;
 FILE  *yyin;
@@ -20,7 +23,7 @@ struct tablaDeSimbolo
     char nombre[100];
     char tipo  [11];
     char valor [100];
-    char ren   [31];
+    int limite;
     int longitud;
 };
 
@@ -272,12 +275,15 @@ void asignarTipo(int tipo)
 				{
 					case 1:
 						strcpy(TOS[j].tipo, "CADENA");
+						TOS[j].limite=LIM_STR;
 					break;
 					case 2:
 						strcpy(TOS[j].tipo, "ENTERO");
+						TOS[j].limite=LIM_INT;
 					break;
 					case 3:
 						strcpy(TOS[j].tipo, "REAL");
+						TOS[j].limite=LIM_REAL;
 					break;
 				}
 			}
@@ -313,7 +319,7 @@ void mostrarTOS()
 		sprintf(aux, "%d", TOS[i].longitud);
 		if(strcmp(aux, "0") == 0)
 			aux[0] = '\0';
-        fprintf(tos,"Nombre: %s  | Tipo: %s   | Valor: %s   | Longitud: %s \n",TOS[i].nombre, TOS[i].tipo, TOS[i].valor, aux);
+        fprintf(tos,"Nombre: %s  | Tipo: %s   | Valor: %s | Limite: %d | Longitud: %s \n",TOS[i].nombre, TOS[i].tipo, TOS[i].valor, TOS[i].limite, aux);
     }
 
     fprintf(tos,"\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n");

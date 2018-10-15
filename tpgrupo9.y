@@ -3,6 +3,11 @@
 #include <stdlib.h>
 #include <conio.h>
 #include "y.tab.h"
+
+int yylex();
+int yyerror();
+
+
 int yystopparser=0;
 FILE  *yyin;
 FILE *tos;         
@@ -153,14 +158,10 @@ termino:
 
 factor: 
       ID {;printf("ID en FACTOR es: %s \n", $<str_val>$);}
-      | numero_entero {;printf("ENTERO en FACTOR es: %d \n", $<int_val>$);}
-      | numero_real {printf("REAL en FACTOR es: %f \n", $<float_val>$);}
+      | ENTERO {;printf("ENTERO en FACTOR es: %d \n", $<int_val>$);}
+      | REAL {printf("REAL en FACTOR es: %f \n", $<float_val>$);}
       |P_A expresion P_C  
     ;
-
-numero_real: REAL | OP_RESTA REAL;
-
-numero_entero: ENTERO | OP_RESTA ENTERO;
 
 %%
 int main(int argc,char *argv[])

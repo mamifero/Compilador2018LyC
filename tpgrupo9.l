@@ -3,8 +3,11 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <string.h>
-
 #include "y.tab.h"
+
+void mostrarError(char *);
+int validarLongitud(int);
+
 FILE  *yyin;
 char auxS[100];
 
@@ -25,8 +28,8 @@ COMENTARIOS				\-\/([^"\/\-"|"\-\/"]|\n)*\/\-
 COMENTARIOS_ANIDADOS	\-\/([^"\/\-"|"\-\/"]|\n)*{COMENTARIOS}*([^"\/\-"|"\-\/"]|\n)*\/\-
 
 
-REAL					{DIGITO}*"."{DIGITO}+|{DIGITO}+"."
-ENTERO					{DIGITO}+
+REAL					(\-)?{DIGITO}*"."{DIGITO}+|{DIGITO}+"."
+ENTERO					(\-)?{DIGITO}+
 CADENA					\"[^"\n]*\"
 %%
 
@@ -81,13 +84,13 @@ CADENA					\"[^"\n]*\"
 
 {REAL} 		{	if(validarLongitud(REAL) == 0) 
 	 				mostrarError(yytext);
-				yylval.float_val = atof(yytext); 
+	 			sscanf(yytext,"%lf",&(yylval.float_val));
 				return REAL;
 			}
 
 {ENTERO}	{ 	if(validarLongitud(ENTERO) == 0) 
 	 				mostrarError(yytext);
-				yylval.int_val = atoi(yytext); 
+	 			sscanf(yytext,"%d",&(yylval.int_val));
 				return ENTERO;
 			}
 
@@ -114,9 +117,12 @@ CADENA					\"[^"\n]*\"
 %%
 
 int validarLongitud(int tipo){
+	int entero;
+	int real;
 	switch(tipo){
 		case ENTERO:
-			if(atoi(yytext) >= -LIM_INT && atoi(yytext) <= LIM_INT-1)
+			sscanf(yytext,"%d",&entero);
+			if(entero >= -LIM_INT && entero <= LIM_INT-1)
 				return 1;
 			return 0;
 			break;
@@ -126,7 +132,8 @@ int validarLongitud(int tipo){
 			return 0;
 			break;
 		case REAL:
-			if(atof(yytext) >= -LIM_REAL && atof(yytext) <= LIM_REAL-1)
+			sscanf(yytext,"%lf",&real);
+			if(real >= -LIM_REAL && real <= LIM_REAL-1)
 				return 1;
 			return 0;
 			break;

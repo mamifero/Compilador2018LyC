@@ -5,6 +5,25 @@
 #include "y.tab.h"
 int yystopparser=0;
 FILE  *yyin;
+FILE *tos;         
+int TOStop = 0;	
+
+// TABLA SIMBOLOS
+struct tablaDeSimbolo
+{
+    char nombre[100];
+    char tipo  [11];
+    char valor [100];
+    char ren   [31];
+    int longitud;
+};
+
+struct tablaDeSimbolo TOS[100];
+   	
+	
+char * buscarEnTOS(int);
+int insertarTOS();
+void mostrarTOS();
 
 %}
 
@@ -169,3 +188,104 @@ void mostrarError(char *mensaje) {
   exit(1);
 }
 
+int insertarTOS()
+{
+	int i,j,x=0;
+    int ii=0;
+    char aux[100];
+    char auxStr[100];
+
+    if (NroToken==CTE_STR)
+    {
+        strcpy(auxStr," ");
+
+        for (j=0;j< strlen(token);j++)
+        {
+            if(token[j]!='"')
+            {
+                auxStr[x]= token[j];
+                x++;
+            }
+        }
+
+        auxStr[strlen(token)-2]='\0';
+    }
+
+
+    for (i=0; i<TOStop;  i++)
+    {
+        if (NroToken==ID)
+        {
+            if (strcmp(TOS[i].nombre,token)==0)
+                return i;
+        }
+        else if (NroToken==CTE_STR)
+        {
+            if (strcmp(TOS[i].valor,auxStr)==0)
+                return i;
+        }
+        else
+        {
+            if (strcmp(TOS[i].valor,token)==0)
+                return i;
+        }
+    }
+
+  	switch (NroToken)
+    {
+        case ID:
+            strcat(aux, token);
+            strcpy(TOS[TOStop].nombre,token);
+            strcpy(TOS[TOStop].tipo,"ID" );
+            TOStop++;
+        break;
+        case CTE_ENT:
+            strcpy(aux,"_");
+            strcat(aux, token);
+            strcpy(TOS[TOStop].nombre, aux);
+            strcpy(TOS[TOStop].tipo,"CTE_ENT");
+            strcpy(TOS[TOStop].valor, token);
+   			TOStop++;
+		break;
+        case CTE_REAL:
+            strcpy(aux,"_");
+            strcat(aux, token);
+            strcpy(TOS[TOStop].nombre,aux);
+            strcpy(TOS[TOStop].tipo,"CTE_REAL");
+            strcpy(TOS[TOStop].valor, token);
+   			TOStop++;
+		break;
+       	case CTE_STR:
+            strcpy(aux,"_");
+            strcat(aux, auxStr);
+            strcpy(TOS[TOStop].nombre, aux);
+            strcpy(TOS[TOStop].tipo,"CTE_STR" );
+            strcpy(TOS[TOStop].valor, auxStr);
+            TOS[TOStop].longitud = (strlen(auxStr));
+            TOStop++;
+        break;
+    }
+
+    return TOStop-1;
+}
+
+void mostrarTOS()
+{
+    int i;
+
+    fprintf(tos,"\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n");
+
+    fprintf(tos,"Nro\t | Nombre\t\t\t | Tipo\t | Valor\t | Longitud \n");
+    for (i=0; i<TOStop; i++)
+    {
+        fprintf(tos,"%d     \t | %s     \t\t\t | %s     \t | %s \t | %d \n",i,TOS[i].nombre, TOS[i].tipo, TOS[i].valor, TOS[i].longitud);
+    }
+
+    fprintf(tos,"\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n");
+}
+
+
+char * buscarEnTOS(int index)
+{
+    return TOS[index].nombre;
+}

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
+#include <string.h>
 #include "y.tab.h"
 
 int yylex();
@@ -26,8 +27,11 @@ struct tablaDeSimbolo
 struct tablaDeSimbolo TOS[100];
    	
 	
-char * buscarEnTOS(int);
-int insertarTOS();
+int buscarEnTOS(char*);
+void insertar_ID_en_Tabla(char*);
+void insertar_STRING_en_Tabla(char*);
+void insertar_ENTERO_en_Tabla(int);
+void insertar_REAL_en_Tabla(double);
 void mostrarTOS();
 
 %}
@@ -85,7 +89,7 @@ char *str_val;
 %token ENTERO REAL CADENA
 %%
 
-program: programa { printf("Compilacion OK\n");};
+program: programa { printf("Compilacion OK\n"); mostrarTOS();};
 
 programa: bloque_declaracion lista_sentencias { printf("programa OK\n");};
 
@@ -128,7 +132,7 @@ lista_expresiones: lista_expresiones PUNTOCOMA expresion | expresion;
 
 asignacion: ID ASIG {printf("Asignacion ID:%s \n", $<str_val>1);} asignable;
       
-asignable: expresion {printf("Num OK\n");}| CADENA{printf("STR:%s \n", $<str_val>1);};
+asignable: expresion {printf("Num OK\n");}| CADENA{printf("STR:%s \n", $<str_val>1);insertar_STRING_en_Tabla($<str_val>1);};
 
 salida:  WRITE CADENA | WRITE ID;
 
@@ -157,9 +161,9 @@ termino:
        ;
 
 factor: 
-      ID {;printf("ID en FACTOR es: %s \n", $<str_val>$);}
-      | ENTERO {;printf("ENTERO en FACTOR es: %d \n", $<int_val>$);}
-      | REAL {printf("REAL en FACTOR es: %f \n", $<float_val>$);}
+      ID {;printf("ID en FACTOR es: %s \n", $<str_val>$);insertar_ID_en_Tabla($<str_val>$);}
+      | ENTERO {;printf("ENTERO en FACTOR es: %d \n", $<int_val>$);insertar_ENTERO_en_Tabla($<int_val>$);}
+      | REAL {printf("REAL en FACTOR es: %f \n", $<float_val>$);insertar_REAL_en_Tabla($<float_val>$);}
       |P_A expresion P_C  
     ;
 
@@ -173,6 +177,17 @@ int main(int argc,char *argv[])
   else
   {
   yyparse();
+  if ((tos = fopen ("TablaDeSimbolos.txt","w"))== NULL)
+  {
+	  printf("No se puede crear el archivo de la tabla de simbolos");
+	  exit(1);
+  }
+  mostrarTOS();
+  if(fclose(tos)!=0)
+  {
+	  printf("No se puede CERRAR el archivo de la tabla de simbolos");
+	  exit(1);
+  }
   }
   fclose(yyin);
   return 0;
@@ -189,104 +204,91 @@ void mostrarError(char *mensaje) {
   exit(1);
 }
 
-int insertarTOS()
+void insertar_ID_en_Tabla(char* token)
 {
-	int i,j,x=0;
-    int ii=0;
-    char aux[100];
-    char auxStr[100];
-
-    if (NroToken==CTE_STR)
-    {
-        strcpy(auxStr," ");
-
-        for (j=0;j< strlen(token);j++)
-        {
-            if(token[j]!='"')
-            {
-                auxStr[x]= token[j];
-                x++;
-            }
-        }
-
-        auxStr[strlen(token)-2]='\0';
-    }
-
-
-    for (i=0; i<TOStop;  i++)
-    {
-        if (NroToken==ID)
-        {
-            if (strcmp(TOS[i].nombre,token)==0)
-                return i;
-        }
-        else if (NroToken==CTE_STR)
-        {
-            if (strcmp(TOS[i].valor,auxStr)==0)
-                return i;
-        }
-        else
-        {
-            if (strcmp(TOS[i].valor,token)==0)
-                return i;
-        }
-    }
-
-  	switch (NroToken)
-    {
-        case ID:
-            strcat(aux, token);
-            strcpy(TOS[TOStop].nombre,token);
-            strcpy(TOS[TOStop].tipo,"ID" );
-            TOStop++;
-        break;
-        case CTE_ENT:
-            strcpy(aux,"_");
-            strcat(aux, token);
-            strcpy(TOS[TOStop].nombre, aux);
-            strcpy(TOS[TOStop].tipo,"CTE_ENT");
-            strcpy(TOS[TOStop].valor, token);
-   			TOStop++;
-		break;
-        case CTE_REAL:
-            strcpy(aux,"_");
-            strcat(aux, token);
-            strcpy(TOS[TOStop].nombre,aux);
-            strcpy(TOS[TOStop].tipo,"CTE_REAL");
-            strcpy(TOS[TOStop].valor, token);
-   			TOStop++;
-		break;
-       	case CTE_STR:
-            strcpy(aux,"_");
-            strcat(aux, auxStr);
-            strcpy(TOS[TOStop].nombre, aux);
-            strcpy(TOS[TOStop].tipo,"CTE_STR" );
-            strcpy(TOS[TOStop].valor, auxStr);
-            TOS[TOStop].longitud = (strlen(auxStr));
-            TOStop++;
-        break;
-    }
-
-    return TOStop-1;
+	char aux[100];
+	strcat(aux, token);
+	if(!buscarEnTOS(token))
+	{
+		strcpy(TOS[TOStop].nombre, token);
+		strcpy(TOS[TOStop].tipo,"ID" );
+		TOStop++;
+	}
 }
+
+void insertar_STRING_en_Tabla(char* token)
+{
+	char aux[100];
+	strcpy(aux,"_");
+	strcat(aux, token);
+	if(!buscarEnTOS(aux))
+	{
+		strcpy(TOS[TOStop].nombre, aux);
+		strcpy(TOS[TOStop].tipo,"CADENA" );
+		strcpy(TOS[TOStop].valor, token);
+		TOS[TOStop].longitud = (strlen(token));
+		TOStop++;
+	}
+}
+
+void insertar_ENTERO_en_Tabla(int token)
+{			
+	char aux[100];
+	char aux2[100];
+	sprintf(aux2, "%d", token);
+	strcpy(aux,"_");
+	strcat(aux, aux2);
+	if(!buscarEnTOS(aux))
+	{
+		strcpy(TOS[TOStop].nombre, aux);
+		strcpy(TOS[TOStop].tipo,"ENTERO");
+		strcpy(TOS[TOStop].valor, aux2);
+		TOStop++;
+	}
+}
+
+void insertar_REAL_en_Tabla(double token)
+{
+	char aux[100];
+	strcpy(aux,"_");
+	char aux2[100];
+	sprintf(aux2, "%lf", token);
+	strcat(aux, aux2);
+	if(!buscarEnTOS(aux))
+	{
+		strcpy(TOS[TOStop].nombre,aux);
+		strcpy(TOS[TOStop].tipo,"REAL");
+		strcpy(TOS[TOStop].valor, aux2);
+		TOStop++;
+	}
+}
+
 
 void mostrarTOS()
 {
     int i;
-
     fprintf(tos,"\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n");
 
-    fprintf(tos,"Nro\t | Nombre\t\t\t | Tipo\t | Valor\t | Longitud \n");
+    fprintf(tos,"Nombre\t\t\t  | Tipo\t | Valor\t  | Longitud \n");
     for (i=0; i<TOStop; i++)
     {
-        fprintf(tos,"%d     \t | %s     \t\t\t | %s     \t | %s \t | %d \n",i,TOS[i].nombre, TOS[i].tipo, TOS[i].valor, TOS[i].longitud);
+        fprintf(tos," %s     \t\t\t | %s     \t | %s \t  | %d \n",TOS[i].nombre, TOS[i].tipo, TOS[i].valor, TOS[i].longitud);
     }
 
     fprintf(tos,"\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n");
 }
 
 
-char * buscarEnTOS(int index)
+int buscarEnTOS(char* nombre)
 {
-    return TOS[index].nombre;
+	int i;
+	for (i=0; i<TOStop; i++)
+    {
+		if(strcmp(TOS[i].nombre, nombre) == 0)
+		{
+			return 1;
+		}
+	}
+	
+	return 0;
 }

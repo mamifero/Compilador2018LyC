@@ -267,12 +267,14 @@ void insertar_REAL_en_Tabla(double token)
 void mostrarTOS()
 {
     int i;
+	char aux[100];
     fprintf(tos,"\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n");
-
-    fprintf(tos,"Nombre\t\t\t  | Tipo\t | Valor\t  | Longitud \n");
     for (i=0; i<TOStop; i++)
     {
-        fprintf(tos," %s     \t\t\t | %s     \t | %s \t  | %d \n",TOS[i].nombre, TOS[i].tipo, TOS[i].valor, TOS[i].longitud);
+		sprintf(aux, "%d", TOS[i].longitud);
+		if(strcmp(aux, "0") == 0)
+			aux[0] = '\0';
+        fprintf(tos,"Nombre: %s  | Tipo: %s   | Valor: %s   | Longitud: %s \n",TOS[i].nombre, TOS[i].tipo, TOS[i].valor, aux);
     }
 
     fprintf(tos,"\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n");

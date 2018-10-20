@@ -2,7 +2,7 @@ flex tpgrupo9.l
 pause
 bison -dyv tpgrupo9.y
 pause
-gcc lex.yy.c y.tab.c -o tpgrupo9.exe
+gcc lista_doble.c lex.yy.c y.tab.c -o tpgrupo9.exe
 pause
 tpgrupo9.exe Prueba.txt
 pause

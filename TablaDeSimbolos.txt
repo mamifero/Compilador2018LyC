@@ -1,0 +1,21 @@
+
+------------------------------ TABLA DE  SIMBOLOS ------------------------------
+Nombre: a  | Tipo: REAL   | Valor:  | Limite: 2147483647 | Longitud:  
+Nombre: b  | Tipo: REAL   | Valor:  | Limite: 2147483647 | Longitud:  
+Nombre: c  | Tipo: ENTERO   | Valor:  | Limite: 32768 | Longitud:  
+Nombre: d  | Tipo: REAL   | Valor:  | Limite: 2147483647 | Longitud:  
+Nombre: e  | Tipo: ENTERO   | Valor:  | Limite: 32768 | Longitud:  
+Nombre: f  | Tipo: ENTERO   | Valor:  | Limite: 32768 | Longitud:  
+Nombre: g  | Tipo: CADENA   | Valor:  | Limite: 30 | Longitud:  
+Nombre: _9  | Tipo: ENTERO   | Valor: 9 | Limite: 0 | Longitud:  
+Nombre: _57.100000  | Tipo: REAL   | Valor: 57.100000 | Limite: 0 | Longitud:  
+Nombre: _9.000000  | Tipo: REAL   | Valor: 9.000000 | Limite: 0 | Longitud:  
+Nombre: _0.900000  | Tipo: REAL   | Valor: 0.900000 | Limite: 0 | Longitud:  
+Nombre: _-9  | Tipo: ENTERO   | Valor: -9 | Limite: 0 | Longitud:  
+Nombre: _-429.100000  | Tipo: REAL   | Valor: -429.100000 | Limite: 0 | Longitud:  
+Nombre: _-0.900000  | Tipo: REAL   | Valor: -0.900000 | Limite: 0 | Longitud:  
+Nombre: _2  | Tipo: ENTERO   | Valor: 2 | Limite: 0 | Longitud:  
+Nombre: _9.600000  | Tipo: REAL   | Valor: 9.600000 | Limite: 0 | Longitud:  
+Nombre: _"soy una cadena@"  | Tipo: CADENA   | Valor: "soy una cadena@" | Limite: 0 | Longitud: 17 
+
+------------------------------ TABLA DE  SIMBOLOS ------------------------------

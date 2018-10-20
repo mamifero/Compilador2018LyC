@@ -4,6 +4,7 @@
 #include <conio.h>
 #include <string.h>
 #include "y.tab.h"
+#include "lista_doble.h"
 
 int yylex();
 int yyerror();
@@ -30,6 +31,7 @@ struct tablaDeSimbolo
 struct tablaDeSimbolo TOS[100];
 char tokens[100][100];  
 int indexTokens = 0; 	
+Lista polacaInversa;
 	
 int buscarEnTOS(char*);
 void insertar_ID_en_Tabla(char*);
@@ -170,30 +172,32 @@ factor:
       ID {;printf("ID en FACTOR es: %s \n", $<str_val>$);}
       | ENTERO {;printf("ENTERO en FACTOR es: %d \n", $<int_val>$);insertar_ENTERO_en_Tabla($<int_val>$);}
       | REAL {printf("REAL en FACTOR es: %f \n", $<float_val>$);insertar_REAL_en_Tabla($<float_val>$);}
-      |P_A expresion P_C  
+      |P_A expresion P_C
     ;
 
 %%
 int main(int argc,char *argv[])
 {
+	polacaInversa = crearLista();
+
   if ((yyin = fopen(argv[1], "rt")) == NULL)
   {
-  printf("\nNo se puede abrir el archivo: %s\n", argv[1]);
+	printf("\nNo se puede abrir el archivo: %s\n", argv[1]);
   }
   else
   {
-  yyparse();
-  if ((tos = fopen ("TablaDeSimbolos.txt","w"))== NULL)
-  {
-	  printf("No se puede crear el archivo de la tabla de simbolos");
-	  exit(1);
-  }
-  mostrarTOS();
-  if(fclose(tos)!=0)
-  {
-	  printf("No se puede CERRAR el archivo de la tabla de simbolos");
-	  exit(1);
-  }
+	  yyparse();
+	  if ((tos = fopen ("TablaDeSimbolos.txt","w"))== NULL)
+	  {
+		  printf("No se puede crear el archivo de la tabla de simbolos");
+		  exit(1);
+	  }
+	  mostrarTOS();
+	  if(fclose(tos)!=0)
+	  {
+		  printf("No se puede CERRAR el archivo de la tabla de simbolos");
+		  exit(1);
+	  }
   }
   fclose(yyin);
   return 0;

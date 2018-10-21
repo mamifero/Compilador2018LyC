@@ -10,12 +10,13 @@ Lista crearLista()
    return lista;
 }
 
-void insertarAdelante(Lista *lista, int v) {
+void insertarAdelante(Lista *lista, char *v) {
    pNodo nuevo;
 
    /* Crear un nodo nuevo */
    nuevo = (pNodo)malloc(sizeof(tipoNodo));
-   nuevo->valor = v;
+   nuevo->valor = (char*)malloc(sizeof(char)*100);
+   strcpy(nuevo->valor, v);
    nuevo->anterior = NULL;
 
    if(lista->primero == NULL)
@@ -29,12 +30,13 @@ void insertarAdelante(Lista *lista, int v) {
    }
 }
 
-void insertarAtras(Lista *lista, int v) {
+void insertarAtras(Lista *lista, char *v) {
    pNodo nuevo;
 
    /* Crear un nodo nuevo */
    nuevo = (pNodo)malloc(sizeof(tipoNodo));
-   nuevo->valor = v;
+   nuevo->valor = (char*)malloc(sizeof(char)*100);
+   strcpy(nuevo->valor, v);
    nuevo->siguiente = NULL;
 
    if(lista->ultimo == NULL)
@@ -53,7 +55,7 @@ void mostrarLista(Lista *lista)
    pNodo nodo = lista->primero;
    while(nodo)
    {
-      printf("%d\n", nodo->valor);
+      printf("%s\n", nodo->valor);
       nodo = nodo->siguiente;
    }
 

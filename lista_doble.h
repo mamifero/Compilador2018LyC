@@ -1,8 +1,10 @@
+#include <string.h>
+
 #define ASCENDENTE 1
 #define DESCENDENTE 0
 
 typedef struct _nodo {
-   int valor;
+   char *valor;
    struct _nodo *siguiente;
    struct _nodo *anterior;
 } tipoNodo;
@@ -17,8 +19,8 @@ typedef struct _lista {
 
 
 /* Funciones con listas: */
-void insertarAdelante(Lista *l, int v);
-void insertarAtras(Lista *l, int v);
+void insertarAdelante(Lista *l, char *v);
+void insertarAtras(Lista *l, char *v);
 void mostrarLista(Lista *l);
 
 Lista crearLista();

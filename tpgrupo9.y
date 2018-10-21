@@ -41,6 +41,8 @@ void insertar_REAL_en_Tabla(double);
 void mostrarTOS();
 void guardarTokens(char*);
 void asignarTipo(int);
+char* floatAString(float);
+char* intAString(int);
 
 %}
 
@@ -97,56 +99,190 @@ char *str_val;
 %token ENTERO REAL CADENA
 %%
 
-program: programa { printf("Compilacion OK\n"); mostrarTOS();};
+program: 
+	programa 
+		{ 
+			printf("Compilacion OK\n"); 
+			mostrarTOS();
+		};
 
-programa: bloque_declaracion lista_sentencias { printf("programa OK\n");};
+programa: 
+	bloque_declaracion lista_sentencias 
+		{ 
+			printf("programa OK\n");
+		};
 
-bloque_declaracion: DECVAR lista_declaraciones ENDDEC { printf("Declaraciones OK\n");};
+bloque_declaracion: 
+	DECVAR lista_declaraciones ENDDEC 
+		{ 
+			printf("Declaraciones OK\n");
+		};
 
-lista_declaraciones: lista_declaraciones declaracion
-          | declaracion;
+lista_declaraciones: 
+	lista_declaraciones declaracion | 
+	declaracion;
 
-declaracion: lista_ids {printf("lista_ids OK\n");} DOSPUNTOS tipo_variable { printf("Declaracion OK\n");};
+declaracion: 
+	lista_ids 
+		{
+			printf("lista_ids OK\n");
+		} 
+	DOSPUNTOS tipo_variable 
+		{
+			printf("Declaracion OK\n");
+		};
 
-lista_ids: lista_ids COMA ID  {;printf("ID en DECVAR es: %s\n", $<str_val>$);insertar_ID_en_Tabla($<str_val>$);guardarTokens($<str_val>$);}
-      | ID {;printf("ID en DECVAR es: %s\n", $<str_val>$);insertar_ID_en_Tabla($<str_val>$);guardarTokens($<str_val>$);};
+lista_ids: 
+	lista_ids COMA ID  
+		{
+			printf("ID en DECVAR es: %s\n", $<str_val>$);
+			insertar_ID_en_Tabla($<str_val>$);
+			guardarTokens($<str_val>$);
+		}
 
-tipo_variable: FLOAT {;asignarTipo(3);} | STRING {;asignarTipo(1);} | INTEGER {;asignarTipo(2);};
+    | ID 
+	    {
+	    	printf("ID en DECVAR es: %s\n", $<str_val>$);
+	    	insertar_ID_en_Tabla($<str_val>$);
+	    	guardarTokens($<str_val>$);
+	    };
 
-lista_sentencias: lista_sentencias sentencia {printf("sentencia OK\n");} 
-        | sentencia {printf("sentencia OK\n");};
+tipo_variable:
+	FLOAT
+		{
+			asignarTipo(3);
+		} 
+	| STRING
+		{
+			asignarTipo(1);
+		} 
+	| INTEGER 
+		{
+			asignarTipo(2);
+		};
 
-sentencia: iteracion | decision | asignacion | entrada | salida {printf("salida OK\n");};
+lista_sentencias: 
+	lista_sentencias sentencia
+		{
+			printf("sentencia OK\n");
+		} 
+	| sentencia 
+        {
+        	printf("sentencia OK\n");
+        };
 
-decision: IF condicion THEN lista_sentencias ENDIF {printf("decision simple OK\n");}
-        | IF condicion THEN lista_sentencias ELSE lista_sentencias ENDIF {printf("decision compuesta OK\n");};
+sentencia: 
+	iteracion 
+	| decision 
+	| asignacion 
+	| entrada 
+	| salida 
+		{
+			printf("salida OK\n");
+		};
 
-condicion: P_A evaluable P_C {printf("condicion OK\n");};
+decision: 
+	IF condicion THEN lista_sentencias ENDIF
+		{
+			printf("decision simple OK\n");
+		}
+	| IF condicion THEN lista_sentencias ELSE lista_sentencias ENDIF
+		{
+			printf("decision compuesta OK\n");
+		};
 
-evaluable: condicion_simple | condicion_multiple;
+condicion: 
+	P_A evaluable P_C
+		{
+			printf("condicion OK\n");
+		};
 
-condicion_simple: expresion comparador expresion | operacion_between | operacion_inlist;
+evaluable: 
+	condicion_simple 
+	| condicion_multiple;
 
-condicion_multiple: condicion_simple AND condicion_simple | condicion_simple OR condicion_simple | NOT condicion_simple;
+condicion_simple: 
+	expresion comparador expresion 
+	| operacion_between 
+	| operacion_inlist;
 
-comparador: OP_COMPARACION_DISTINTO | OP_COMPARACION_MAYOR_A | OP_COMPARACION_MAYOR_IGUAL_A | OP_COMPARACION_MENOR_A 
-            | OP_COMPARACION_MENOR_IGUAL_A | OP_COMPARACION_IGUAL {printf("Comparador OK\n");};
+condicion_multiple: 
+	condicion_simple AND condicion_simple 
+	| condicion_simple OR condicion_simple 
+	| NOT condicion_simple;
 
-operacion_between: BETWEEN P_A ID COMA C_A expresion PUNTOCOMA expresion C_C P_C {printf("between OK\n");};
+comparador: 
+	OP_COMPARACION_DISTINTO 
+	| OP_COMPARACION_MAYOR_A 
+	| OP_COMPARACION_MAYOR_IGUAL_A 
+	| OP_COMPARACION_MENOR_A 
+	| OP_COMPARACION_MENOR_IGUAL_A 
+	| OP_COMPARACION_IGUAL
+		{
+			printf("Comparador OK\n");
+		};
 
-operacion_inlist: INLIST P_A ID COMA C_A lista_expresiones C_C P_C {printf("Inlist OK\n");};
+operacion_between: 
+	BETWEEN P_A ID COMA C_A expresion PUNTOCOMA expresion C_C P_C 
+		{
+			printf("between OK\n");
+		};
 
-lista_expresiones: lista_expresiones PUNTOCOMA expresion | expresion;
+operacion_inlist: 
+	INLIST P_A ID COMA C_A lista_expresiones C_C P_C 
+		{
+			printf("Inlist OK\n");
+		};
 
-asignacion: ID ASIG {printf("Asignacion ID:%s \n", $<str_val>1);} asignable;
+lista_expresiones: 
+	lista_expresiones PUNTOCOMA expresion 
+	| expresion;
+
+asignacion: 
+	ID
+		{
+			insertarAtras(&polacaInversa, $<str_val>$);
+		} 
+	ASIG 
+		{
+			printf("Asignacion ID:%s \n", $<str_val>1);
+		} 
+	asignable
+		{
+			insertarAtras(&polacaInversa, "=");
+		};
       
-asignable: expresion {printf("Num OK\n");}| CADENA{printf("STR:%s \n", $<str_val>1);insertar_STRING_en_Tabla($<str_val>1);};
+asignable: 
+	expresion 
+		{
+			printf("Num OK\n");
+		}
+	| CADENA
+		{
+			printf("STR:%s \n", $<str_val>1);
+			insertar_STRING_en_Tabla($<str_val>1);
+			insertarAtras(&polacaInversa, $<str_val>1);
+		};
 
-salida:  WRITE CADENA | WRITE ID;
+salida:
+	WRITE CADENA 
+	| WRITE ID;
 
-entrada: READ ID {printf("entrada OK\n");};
+entrada: 
+	READ ID 
+		{
+			printf("entrada OK\n");
+		};
 
-iteracion: WHILE {printf("While OK\n");} condicion THEN lista_sentencias ENDWHILE {printf("iteracion OK\n");};
+iteracion:
+	WHILE 
+		{
+			printf("While OK\n");
+		} 
+	condicion THEN lista_sentencias ENDWHILE 
+		{
+			printf("iteracion OK\n");
+		};
 
 
 
@@ -156,24 +292,50 @@ iteracion: WHILE {printf("While OK\n");} condicion THEN lista_sentencias ENDWHIL
 
     
 expresion:
-         termino
-   |expresion OP_RESTA termino {printf("Resta OK\n");}
-       |expresion OP_SUMA termino  {printf("Suma OK\n");}
-
-   ;
+	termino
+	|expresion OP_RESTA termino
+		{
+			printf("Resta OK\n");
+			insertarAtras(&polacaInversa, "-");
+		}
+	|expresion OP_SUMA termino
+		{
+			printf("Suma OK\n");
+			insertarAtras(&polacaInversa, "+");
+		};
 
 termino: 
-       factor
-       |termino OP_MUL factor  {printf("Multiplicación OK\n");}
-       |termino OP_DIV factor  {printf("División OK\n");}
-       ;
+	factor
+	|termino OP_MUL factor  
+		{
+			printf("Multiplicación OK\n");
+			insertarAtras(&polacaInversa, "*");
+		}
+	|termino OP_DIV factor  
+		{
+		-	printf("División OK\n");
+			insertarAtras(&polacaInversa, "/");
+		};
 
 factor: 
-      ID {;printf("ID en FACTOR es: %s \n", $<str_val>$);}
-      | ENTERO {;printf("ENTERO en FACTOR es: %d \n", $<int_val>$);insertar_ENTERO_en_Tabla($<int_val>$);}
-      | REAL {printf("REAL en FACTOR es: %f \n", $<float_val>$);insertar_REAL_en_Tabla($<float_val>$);}
-      |P_A expresion P_C
-    ;
+	ID
+		{
+			printf("ID en FACTOR es: %s \n", $<str_val>$);
+			insertarAtras(&polacaInversa, $<str_val>$);
+		}
+	| ENTERO 
+		{
+			printf("ENTERO en FACTOR es: %d \n", $<int_val>$);
+			insertar_ENTERO_en_Tabla($<int_val>$);
+			insertarAtras(&polacaInversa, intAString($<int_val>$));
+		}
+	| REAL 
+		{
+			printf("REAL en FACTOR es: %f \n", $<float_val>$);
+			insertar_REAL_en_Tabla($<float_val>$);
+			insertarAtras(&polacaInversa, floatAString($<float_val>$));
+		}
+	|P_A expresion P_C;
 
 %%
 int main(int argc,char *argv[])
@@ -198,6 +360,7 @@ int main(int argc,char *argv[])
 		  printf("No se puede CERRAR el archivo de la tabla de simbolos");
 		  exit(1);
 	  }
+	  mostrarLista(&polacaInversa);
   }
   fclose(yyin);
   return 0;
@@ -342,4 +505,23 @@ int buscarEnTOS(char* nombre)
 	}
 	
 	return 0;
+}
+
+/*****************************
+	METODOS DE POLACA INVERSA 
+*****************************/
+
+char* floatAString(float numero)
+{
+	char *aux = (char*)malloc(sizeof(char) * 100);
+	sprintf(aux,"%f",numero);
+	printf("probando: %s\n", aux);
+	return aux;
+}
+
+char* intAString(int numero)
+{
+	char *aux = (char*)malloc(sizeof(char) * 100);
+	sprintf(aux,"%d",numero);
+	return aux;
 }

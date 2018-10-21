@@ -43,6 +43,7 @@ void guardarTokens(char*);
 void asignarTipo(int);
 char* floatAString(float);
 char* intAString(int);
+char* getComparadorAssembler(char*);
 
 %}
 
@@ -220,10 +221,34 @@ comparador:
 	| OP_COMPARACION_IGUAL
 		{
 			printf("Comparador OK\n");
+			insertarAtras(&polacaInversa, getComparadorAssembler($<str_val>$));
 		};
 
 operacion_between: 
-	BETWEEN P_A ID COMA C_A expresion PUNTOCOMA expresion C_C P_C 
+	BETWEEN P_A ID COMA C_A
+		{
+			insertarAtras(&polacaInversa, $<str_val>3);
+		}
+	expresion
+		{
+			insertarAtras(&polacaInversa, "BLT");
+			//TODO
+			insertarAtras(&polacaInversa, "---TODO--- agregarSalto");
+		}
+	PUNTOCOMA
+		{
+			insertarAtras(&polacaInversa, $<str_val>3);
+		}
+	expresion
+		{
+			insertarAtras(&polacaInversa, "BGT");
+			//TODO
+			insertarAtras(&polacaInversa, "---TODO--- agregarSalto");
+			insertarAtras(&polacaInversa, "TRUE");
+			insertarAtras(&polacaInversa, "FALSE");
+			//TODO desapilar y colocar valores de esta posición en las posiciones apiladas
+		}
+	C_C P_C 
 		{
 			printf("between OK\n");
 		};
@@ -235,7 +260,11 @@ operacion_inlist:
 		};
 
 lista_expresiones: 
-	lista_expresiones PUNTOCOMA expresion 
+	lista_expresiones PUNTOCOMA
+		{
+			insertarAtras(&polacaInversa, ":");
+		}
+	expresion 
 	| expresion;
 
 asignacion: 
@@ -266,12 +295,22 @@ asignable:
 
 salida:
 	WRITE CADENA 
-	| WRITE ID;
+		{
+			insertarAtras(&polacaInversa, $<str_val>1);
+			insertarAtras(&polacaInversa, "WRITE");
+		}
+	| WRITE ID
+		{
+			insertarAtras(&polacaInversa, $<str_val>1);
+			insertarAtras(&polacaInversa, "WRITE");
+		};
 
 entrada: 
 	READ ID 
 		{
 			printf("entrada OK\n");
+			insertarAtras(&polacaInversa, $<str_val>1);
+			insertarAtras(&polacaInversa, "READ");
 		};
 
 iteracion:
@@ -524,4 +563,22 @@ char* intAString(int numero)
 	char *aux = (char*)malloc(sizeof(char) * 100);
 	sprintf(aux,"%d",numero);
 	return aux;
+}
+
+//Obtiene el codigo assembler para tal comparador
+char* getComparadorAssembler(char* cadena)
+{
+	if(strcmp(cadena, "<") == 0)
+		return "BGE";
+	if(strcmp(cadena, ">=") == 0)
+		return "BLT";
+	if(strcmp(cadena, "==") == 0)
+		return "BNE";
+	if(strcmp(cadena, ">") == 0)
+		return "BLE";
+	if(strcmp(cadena, "<>") == 0)
+		return "BEQ";
+	if(strcmp(cadena, "<=") == 0)
+		return "BGT";
+	return NULL;
 }

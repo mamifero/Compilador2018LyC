@@ -214,14 +214,34 @@ condicion_multiple:
 
 comparador: 
 	OP_COMPARACION_DISTINTO 
+		{
+			printf("Comparador OK\n");
+			insertarAtras(&polacaInversa, getComparadorAssembler("!="));
+		};
 	| OP_COMPARACION_MAYOR_A 
+		{
+			printf("Comparador OK\n");
+			insertarAtras(&polacaInversa, getComparadorAssembler(">"));
+		};
 	| OP_COMPARACION_MAYOR_IGUAL_A 
+		{
+			printf("Comparador OK\n");
+			insertarAtras(&polacaInversa, getComparadorAssembler(">="));
+		};
 	| OP_COMPARACION_MENOR_A 
+		{
+			printf("Comparador OK\n");
+			insertarAtras(&polacaInversa, getComparadorAssembler("<"));
+		};
 	| OP_COMPARACION_MENOR_IGUAL_A 
+		{
+			printf("Comparador OK\n");
+			insertarAtras(&polacaInversa, getComparadorAssembler("<="));
+		};
 	| OP_COMPARACION_IGUAL
 		{
 			printf("Comparador OK\n");
-			insertarAtras(&polacaInversa, getComparadorAssembler($<str_val>$));
+			insertarAtras(&polacaInversa, getComparadorAssembler("=="));
 		};
 
 operacion_between: 
@@ -568,6 +588,8 @@ char* intAString(int numero)
 //Obtiene el codigo assembler para tal comparador
 char* getComparadorAssembler(char* cadena)
 {
+
+	printf("Cadena: %s" , cadena);
 	if(strcmp(cadena, "<") == 0)
 		return "BGE";
 	if(strcmp(cadena, ">=") == 0)
@@ -576,7 +598,7 @@ char* getComparadorAssembler(char* cadena)
 		return "BNE";
 	if(strcmp(cadena, ">") == 0)
 		return "BLE";
-	if(strcmp(cadena, "<>") == 0)
+	if(strcmp(cadena, "!=") == 0)
 		return "BEQ";
 	if(strcmp(cadena, "<=") == 0)
 		return "BGT";

@@ -5,6 +5,7 @@
 
 typedef struct _nodo {
    char *valor;
+   int indice;
    struct _nodo *siguiente;
    struct _nodo *anterior;
 } tipoNodo;
@@ -20,7 +21,8 @@ typedef struct _lista {
 
 /* Funciones con listas: */
 void insertarAdelante(Lista *l, char *v);
-void insertarAtras(Lista *l, char *v);
+void insertarAtras(Lista *l, char *v, int indice);
 void mostrarLista(Lista *l);
+void reemplazarValor(Lista *lista, char *v, int indice);
 
 Lista crearLista();

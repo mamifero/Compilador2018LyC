@@ -30,12 +30,13 @@ void insertarAdelante(Lista *lista, char *v) {
    }
 }
 
-void insertarAtras(Lista *lista, char *v) {
+void insertarAtras(Lista *lista, char *v, int indice) {
    pNodo nuevo;
 
    /* Crear un nodo nuevo */
    nuevo = (pNodo)malloc(sizeof(tipoNodo));
    nuevo->valor = (char*)malloc(sizeof(char)*100);
+   nuevo->indice = indice;
    strcpy(nuevo->valor, v);
    nuevo->siguiente = NULL;
 
@@ -47,6 +48,23 @@ void insertarAtras(Lista *lista, char *v) {
       nuevo->anterior = lista->ultimo;
       lista->ultimo->siguiente = nuevo;
       lista->ultimo = nuevo;
+   }
+}
+
+void reemplazarValor(Lista *lista, char *v, int indice){
+   pNodo nodo = lista->primero->siguiente;
+   pNodo primerNodo = lista->primero;
+   if(atoi(primerNodo->valor) == indice){
+		strcpy(primerNodo->valor, v);
+		return;
+   }
+   while(nodo != primerNodo)
+   {
+		if(atoi(nodo->valor) == indice){
+			strcpy(nodo->valor, v);
+			return;
+		}	
+		nodo = nodo->siguiente;
    }
 }
 

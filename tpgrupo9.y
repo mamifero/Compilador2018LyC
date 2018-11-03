@@ -5,6 +5,7 @@
 #include <string.h>
 #include "y.tab.h"
 #include "lista_doble.h"
+#include "pila.h"
 
 int yylex();
 int yyerror();
@@ -28,10 +29,13 @@ struct tablaDeSimbolo
     int longitud;
 };
 
+int cantPolaca = 0;
+
 struct tablaDeSimbolo TOS[100];
 char tokens[100][100];  
 int indexTokens = 0; 	
 Lista polacaInversa;
+Pila pValores;
 	
 int buscarEnTOS(char*);
 void insertar_ID_en_Tabla(char*);
@@ -44,6 +48,7 @@ void asignarTipo(int);
 char* floatAString(float);
 char* intAString(int);
 char* getComparadorAssembler(char*);
+void insertarPolaca(Lista *lista, char *v);
 
 %}
 
@@ -203,7 +208,12 @@ evaluable:
 	| condicion_multiple;
 
 condicion_simple: 
-	expresion comparador expresion 
+	expresion comparador expresion {
+		char aux[100];
+		desapilar(&pValores,aux);
+		insertarPolaca(&polacaInversa, "CMP");
+		insertarPolaca(&polacaInversa, aux);
+		}
 	| operacion_between 
 	| operacion_inlist;
 
@@ -216,56 +226,56 @@ comparador:
 	OP_COMPARACION_DISTINTO 
 		{
 			printf("Comparador OK\n");
-			insertarAtras(&polacaInversa, getComparadorAssembler("!="));
+			apilar(&pValores, getComparadorAssembler("!="));
 		};
 	| OP_COMPARACION_MAYOR_A 
 		{
 			printf("Comparador OK\n");
-			insertarAtras(&polacaInversa, getComparadorAssembler(">"));
+			apilar(&pValores, getComparadorAssembler(">"));
 		};
 	| OP_COMPARACION_MAYOR_IGUAL_A 
 		{
 			printf("Comparador OK\n");
-			insertarAtras(&polacaInversa, getComparadorAssembler(">="));
+			apilar(&pValores, getComparadorAssembler(">="));
 		};
 	| OP_COMPARACION_MENOR_A 
 		{
 			printf("Comparador OK\n");
-			insertarAtras(&polacaInversa, getComparadorAssembler("<"));
+			apilar(&pValores, getComparadorAssembler("<"));
 		};
 	| OP_COMPARACION_MENOR_IGUAL_A 
 		{
 			printf("Comparador OK\n");
-			insertarAtras(&polacaInversa, getComparadorAssembler("<="));
+			apilar(&pValores, getComparadorAssembler("<="));
 		};
 	| OP_COMPARACION_IGUAL
 		{
 			printf("Comparador OK\n");
-			insertarAtras(&polacaInversa, getComparadorAssembler("=="));
+			apilar(&pValores, getComparadorAssembler("=="));
 		};
 
 operacion_between: 
 	BETWEEN P_A ID COMA C_A
 		{
-			insertarAtras(&polacaInversa, $<str_val>3);
+			insertarPolaca(&polacaInversa, $<str_val>3);
 		}
 	expresion
 		{
-			insertarAtras(&polacaInversa, "BLT");
+			insertarPolaca(&polacaInversa, "BLT");
 			//TODO
-			insertarAtras(&polacaInversa, "---TODO--- agregarSalto");
+			insertarPolaca(&polacaInversa, "---TODO--- agregarSalto");
 		}
 	PUNTOCOMA
 		{
-			insertarAtras(&polacaInversa, $<str_val>3);
+			insertarPolaca(&polacaInversa, $<str_val>3);
 		}
 	expresion
 		{
-			insertarAtras(&polacaInversa, "BGT");
+			insertarPolaca(&polacaInversa, "BGT");
 			//TODO
-			insertarAtras(&polacaInversa, "---TODO--- agregarSalto");
-			insertarAtras(&polacaInversa, "TRUE");
-			insertarAtras(&polacaInversa, "FALSE");
+			insertarPolaca(&polacaInversa, "---TODO--- agregarSalto");
+			insertarPolaca(&polacaInversa, "TRUE");
+			insertarPolaca(&polacaInversa, "FALSE");
 			//TODO desapilar y colocar valores de esta posición en las posiciones apiladas
 		}
 	C_C P_C 
@@ -282,7 +292,7 @@ operacion_inlist:
 lista_expresiones: 
 	lista_expresiones PUNTOCOMA
 		{
-			insertarAtras(&polacaInversa, ":");
+			insertarPolaca(&polacaInversa, ":");
 		}
 	expresion 
 	| expresion;
@@ -290,7 +300,7 @@ lista_expresiones:
 asignacion: 
 	ID
 		{
-			insertarAtras(&polacaInversa, $<str_val>$);
+			insertarPolaca(&polacaInversa, $<str_val>$);
 		} 
 	ASIG 
 		{
@@ -298,7 +308,7 @@ asignacion:
 		} 
 	asignable
 		{
-			insertarAtras(&polacaInversa, "=");
+			insertarPolaca(&polacaInversa, "=");
 		};
       
 asignable: 
@@ -310,27 +320,27 @@ asignable:
 		{
 			printf("STR:%s \n", $<str_val>1);
 			insertar_STRING_en_Tabla($<str_val>1);
-			insertarAtras(&polacaInversa, $<str_val>1);
+			insertarPolaca(&polacaInversa, $<str_val>1);
 		};
 
 salida:
 	WRITE CADENA 
 		{
-			insertarAtras(&polacaInversa, $<str_val>1);
-			insertarAtras(&polacaInversa, "WRITE");
+			insertarPolaca(&polacaInversa, $<str_val>1);
+			insertarPolaca(&polacaInversa, "WRITE");
 		}
 	| WRITE ID
 		{
-			insertarAtras(&polacaInversa, $<str_val>1);
-			insertarAtras(&polacaInversa, "WRITE");
+			insertarPolaca(&polacaInversa, $<str_val>1);
+			insertarPolaca(&polacaInversa, "WRITE");
 		};
 
 entrada: 
 	READ ID 
 		{
 			printf("entrada OK\n");
-			insertarAtras(&polacaInversa, $<str_val>1);
-			insertarAtras(&polacaInversa, "READ");
+			insertarPolaca(&polacaInversa, $<str_val>1);
+			insertarPolaca(&polacaInversa, "READ");
 		};
 
 iteracion:
@@ -355,12 +365,12 @@ expresion:
 	|expresion OP_RESTA termino
 		{
 			printf("Resta OK\n");
-			insertarAtras(&polacaInversa, "-");
+			insertarPolaca(&polacaInversa, "-");
 		}
 	|expresion OP_SUMA termino
 		{
 			printf("Suma OK\n");
-			insertarAtras(&polacaInversa, "+");
+			insertarPolaca(&polacaInversa, "+");
 		};
 
 termino: 
@@ -368,31 +378,31 @@ termino:
 	|termino OP_MUL factor  
 		{
 			printf("Multiplicación OK\n");
-			insertarAtras(&polacaInversa, "*");
+			insertarPolaca(&polacaInversa, "*");
 		}
 	|termino OP_DIV factor  
 		{
 		-	printf("División OK\n");
-			insertarAtras(&polacaInversa, "/");
+			insertarPolaca(&polacaInversa, "/");
 		};
 
 factor: 
 	ID
 		{
 			printf("ID en FACTOR es: %s \n", $<str_val>$);
-			insertarAtras(&polacaInversa, $<str_val>$);
+			insertarPolaca(&polacaInversa, $<str_val>$);
 		}
 	| ENTERO 
 		{
 			printf("ENTERO en FACTOR es: %d \n", $<int_val>$);
 			insertar_ENTERO_en_Tabla($<int_val>$);
-			insertarAtras(&polacaInversa, intAString($<int_val>$));
+			insertarPolaca(&polacaInversa, intAString($<int_val>$));
 		}
 	| REAL 
 		{
 			printf("REAL en FACTOR es: %f \n", $<float_val>$);
 			insertar_REAL_en_Tabla($<float_val>$);
-			insertarAtras(&polacaInversa, floatAString($<float_val>$));
+			insertarPolaca(&polacaInversa, floatAString($<float_val>$));
 		}
 	|P_A expresion P_C;
 
@@ -400,6 +410,7 @@ factor:
 int main(int argc,char *argv[])
 {
 	polacaInversa = crearLista();
+	pValores = crearPila();
 
   if ((yyin = fopen(argv[1], "rt")) == NULL)
   {
@@ -583,6 +594,11 @@ char* intAString(int numero)
 	char *aux = (char*)malloc(sizeof(char) * 100);
 	sprintf(aux,"%d",numero);
 	return aux;
+}
+
+void insertarPolaca(Lista *lista, char *v) {
+	insertarAtras(lista,v,cantPolaca);
+	cantPolaca++;
 }
 
 //Obtiene el codigo assembler para tal comparador

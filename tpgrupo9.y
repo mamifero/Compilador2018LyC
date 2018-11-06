@@ -30,7 +30,8 @@ struct tablaDeSimbolo
 };
 
 int cantPolaca = 0;
-
+char auxBetween[100];
+int contInlist;
 struct tablaDeSimbolo TOS[100];
 char tokens[100][100];  
 int indexTokens = 0; 	
@@ -247,22 +248,34 @@ condicion_simple:
 		
 		insertarPolaca(&polacaInversa, "CMP");
 		}
-	| operacion_between {
-		 // bloque de prueba
-		insertarPolaca(&polacaInversa, "1");
-		insertarPolaca(&polacaInversa, "CMP");
-		apilar(&pValores, "==");
-	}
-	| operacion_inlist{
-		 // bloque de prueba
-		insertarPolaca(&polacaInversa, "1"); 
-		insertarPolaca(&polacaInversa, "CMP");
-		apilar(&pValores, "==");
-	}
-	;
+	| operacion_between 
+	| operacion_inlist;
 
 condicion_multiple: 
-	condicion_simple AND condicion_simple 
+	condicion_simple AND {
+		char aux[100];
+		desapilar(&pValores,aux); // desapilo el simbolo de comparacion
+		insertarPolaca(&polacaInversa, getComparadorAssemblerI(aux));
+		insertarPolaca(&polacaInversa, ""); // dejo el lugar para el salto
+		sprintf(aux,"%d",cantPolaca-1); 
+		apilar(&pValores, aux); //guardo la posicion del espacio que guarde
+	}
+	condicion_simple {
+		char aux[100];
+		int auxInt;
+		desapilar(&pValores,aux); //recupero el simbolo de comparacion
+		insertarPolaca(&polacaInversa, getComparadorAssembler(aux));
+		sprintf(aux,"%d",cantPolaca+2); 
+		insertarPolaca(&polacaInversa, aux); // si es verdadero esquivo el salto que me lleva al fin del bloque
+		desapilar(&pValores,aux);// recupero el lugar que guarde antes
+		auxInt = atoi(aux); // convierto el lugar a int
+		sprintf(aux,"%d",cantPolaca) ;
+		reemplazarValor(&polacaInversa,aux,auxInt); // reemplazo el lugar que habia guardado con la posicion del salto incondicional al final del bloque
+		insertarPolaca(&polacaInversa, "BI");
+		insertarPolaca(&polacaInversa, ""); // dejo el lugar para el salto
+		sprintf(aux,"%d",cantPolaca-1);
+		apilar(&pValores, aux); // guardo la posicion
+	}
 	| condicion_simple OR
 	{
 		char aux[100];
@@ -332,25 +345,59 @@ operacion_between:
 	BETWEEN P_A ID COMA C_A
 		{
 			insertarPolaca(&polacaInversa, $<str_val>3);
+			stpcpy(auxBetween,$<str_val>3);
+			
 		}
 	expresion
 		{
+			char aux[100];
+			int auxInt;
+			insertarPolaca(&polacaInversa, "CMP");
 			insertarPolaca(&polacaInversa, "BLT");
-			//TODO
-			insertarPolaca(&polacaInversa, "---TODO--- agregarSalto");
+			insertarPolaca(&polacaInversa, "");
+			sprintf(aux,"%d",cantPolaca-1); 
+			apilar(&pValores, aux); //guardo la posicion del espacio que guarde
+			
+			
+
 		}
 	PUNTOCOMA
 		{
-			insertarPolaca(&polacaInversa, $<str_val>3);
+			
+			
+			
+			insertarPolaca(&polacaInversa, auxBetween);
+			
 		}
 	expresion
 		{
-			insertarPolaca(&polacaInversa, "BGT");
-			//TODO
-			insertarPolaca(&polacaInversa, "---TODO--- agregarSalto");
-			insertarPolaca(&polacaInversa, "TRUE");
-			insertarPolaca(&polacaInversa, "FALSE");
-			//TODO desapilar y colocar valores de esta posición en las posiciones apiladas
+			char aux[100];
+			int auxInt;
+			
+			insertarPolaca(&polacaInversa, "CMP");
+			insertarPolaca(&polacaInversa, "BLE");
+			sprintf(aux,"%d",cantPolaca+6); 
+			// si es verdadero esquivo la comparacion con 0 y su salto por negativo
+			insertarPolaca(&polacaInversa, aux); 
+			
+			desapilar(&pValores,aux);// recupero el lugar que guarde antes
+			auxInt = atoi(aux); // convierto el lugar a int
+			sprintf(aux,"%d",cantPolaca) ;
+			reemplazarValor(&polacaInversa,aux,auxInt); // reemplazo el lugar que habia guardado con la posicion del salto incondicional al final del bloque
+			
+			insertarPolaca(&polacaInversa, "0");
+			insertarPolaca(&polacaInversa, "1");
+			insertarPolaca(&polacaInversa, "CMP");
+			insertarPolaca(&polacaInversa, "BI");
+			sprintf(aux,"%d",cantPolaca+4); 
+			insertarPolaca(&polacaInversa, aux);
+			
+			insertarPolaca(&polacaInversa, "1");
+			insertarPolaca(&polacaInversa, "1");
+			insertarPolaca(&polacaInversa, "CMP");
+			apilar(&pValores, "=="); // Apilo el simbolo para simular una comparacion
+			
+			
 		}
 	C_C P_C 
 		{
@@ -358,18 +405,73 @@ operacion_between:
 		};
 
 operacion_inlist: 
-	INLIST P_A ID COMA C_A lista_expresiones C_C P_C 
+	INLIST P_A ID 
+	{
+		apilar(&pValores, $<str_val>3);
+		contInlist=0;
+	}
+	COMA C_A lista_expresiones C_C P_C 
 		{
+			
 			printf("Inlist OK\n");
+			
+			char aux[100];
+			char aux2[100];
+			int auxInt;
+			desapilar(&pValores,aux); // obtengo el ID
+			insertarPolaca(&polacaInversa, "0");
+			insertarPolaca(&polacaInversa, "1");
+			insertarPolaca(&polacaInversa, "CMP");
+			insertarPolaca(&polacaInversa, "BI");
+			sprintf(aux,"%d",cantPolaca+4); 
+			insertarPolaca(&polacaInversa, aux);		
+			sprintf(aux,"%d",cantPolaca);		
+			for(int i = 0; i<contInlist ; i++){
+				desapilar(&pValores,aux2); // obtengo la posicion
+				auxInt = atoi(aux2); // convierto el lugar a int
+				reemplazarValor(&polacaInversa,aux,auxInt);
+			}
+			insertarPolaca(&polacaInversa, "1");
+			insertarPolaca(&polacaInversa, "1");
+			insertarPolaca(&polacaInversa, "CMP");
+			apilar(&pValores, "=="); // Apilo el simbolo para simular una comparacion
+			
+			
+			
 		};
 
 lista_expresiones: 
-	lista_expresiones PUNTOCOMA
+	lista_expresiones PUNTOCOMA	expresion 
 		{
-			insertarPolaca(&polacaInversa, ":");
-		}
-	expresion 
-	| expresion;
+			char aux[100];
+			char aux2[100];
+			desapilar(&pValores,aux); // obtengo el ID
+			insertarPolaca(&polacaInversa, aux);
+			insertarPolaca(&polacaInversa, "CMP");
+			insertarPolaca(&polacaInversa, "BEQ");
+			insertarPolaca(&polacaInversa, "");
+			sprintf(aux2,"%d",cantPolaca-1) ;
+			apilar(&pValores, aux2); // apilo la posicion
+			apilar(&pValores, aux); // apilo el ID
+			contInlist++;
+			
+		};
+	| expresion
+		{
+			char aux[100];
+			char aux2[100];
+			desapilar(&pValores,aux); // obtengo el ID
+			insertarPolaca(&polacaInversa, aux);
+			insertarPolaca(&polacaInversa, "CMP");
+			insertarPolaca(&polacaInversa, "BEQ");
+			insertarPolaca(&polacaInversa, "");
+			sprintf(aux2,"%d",cantPolaca-1) ;
+			apilar(&pValores, aux2); // apilo la posicion
+			apilar(&pValores, aux); // apilo el ID
+			contInlist++;
+			
+			
+		};
 
 asignacion: 
 	ID

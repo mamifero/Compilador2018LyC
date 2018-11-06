@@ -33,7 +33,7 @@ d = d * 2
 ENDWHILE
 
 
-WHILE(BETWEEN(a,[b;d]))
+WHILE(BETWEEN(a,[b+2;d]))
 THEN
 d = d * 2
 ENDWHILE

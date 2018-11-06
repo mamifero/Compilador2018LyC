@@ -48,6 +48,7 @@ void asignarTipo(int);
 char* floatAString(float);
 char* intAString(int);
 char* getComparadorAssembler(char*);
+char* getComparadorAssemblerI(char*);
 void insertarPolaca(Lista *lista, char *v);
 
 %}
@@ -191,10 +192,36 @@ decision:
 	IF condicion THEN lista_sentencias ENDIF
 		{
 			printf("decision simple OK\n");
+			char aux[100];
+			int auxInt;
+			desapilar(&pValores,aux);
+			auxInt = atoi(aux); // convierto el lugar a int
+			sprintf(aux,"%d",cantPolaca);
+			printf(aux);
+			reemplazarValor(&polacaInversa,aux,auxInt); // reemplazo el lugar que habia guardado con la posicion proxima donde empieza el bloque
 		}
-	| IF condicion THEN lista_sentencias ELSE lista_sentencias ENDIF
+	| IF condicion THEN lista_sentencias ELSE
+		{
+			char aux[100];
+			int auxInt;
+			desapilar(&pValores,aux);
+			auxInt = atoi(aux); // convierto el lugar a int
+			sprintf(aux,"%d",cantPolaca+2) ;
+			reemplazarValor(&polacaInversa,aux,auxInt); // reemplazo el lugar que habia guardado con la posicion proxima donde empieza el bloque
+			insertarPolaca(&polacaInversa, "BI");
+			insertarPolaca(&polacaInversa, "");
+			sprintf(aux,"%d",cantPolaca-1);
+			apilar(&pValores, aux);
+		}
+		lista_sentencias ENDIF
 		{
 			printf("decision compuesta OK\n");
+			char aux[100];
+			int auxInt;
+			desapilar(&pValores,aux);
+			auxInt = atoi(aux); // convierto el lugar a int
+			sprintf(aux,"%d",cantPolaca) ;
+			reemplazarValor(&polacaInversa,aux,auxInt); // reemplazo el lugar que habia guardado con la posicion proxima donde empieza el bloque
 		};
 
 condicion: 
@@ -205,53 +232,100 @@ condicion:
 
 evaluable: 
 	condicion_simple 
+	{
+		char aux[100];
+		desapilar(&pValores,aux);
+		insertarPolaca(&polacaInversa, getComparadorAssemblerI(aux));
+		insertarPolaca(&polacaInversa, "");
+		sprintf(aux,"%d",cantPolaca-1);
+		apilar(&pValores, aux);
+	}
 	| condicion_multiple;
 
 condicion_simple: 
-	expresion comparador expresion {
-		char aux[100];
-		desapilar(&pValores,aux);
+	expresion comparador expresion {	
+		
 		insertarPolaca(&polacaInversa, "CMP");
-		insertarPolaca(&polacaInversa, aux);
 		}
-	| operacion_between 
-	| operacion_inlist;
+	| operacion_between {
+		 // bloque de prueba
+		insertarPolaca(&polacaInversa, "1");
+		insertarPolaca(&polacaInversa, "CMP");
+		apilar(&pValores, "==");
+	}
+	| operacion_inlist{
+		 // bloque de prueba
+		insertarPolaca(&polacaInversa, "1"); 
+		insertarPolaca(&polacaInversa, "CMP");
+		apilar(&pValores, "==");
+	}
+	;
 
 condicion_multiple: 
 	condicion_simple AND condicion_simple 
-	| condicion_simple OR condicion_simple 
-	| NOT condicion_simple;
+	| condicion_simple OR
+	{
+		char aux[100];
+		desapilar(&pValores,aux); // desapilo el simbolo de comparacion
+		insertarPolaca(&polacaInversa, getComparadorAssembler(aux));
+		insertarPolaca(&polacaInversa, ""); // dejo el lugar para el salto
+		sprintf(aux,"%d",cantPolaca-1); 
+		apilar(&pValores, aux); //guardo la posicion del espacio que guarde
+	}
+	condicion_simple
+	{
+		char aux[100];
+		int auxInt;
+		desapilar(&pValores,aux); //recupero el simbolo de comparacion
+		insertarPolaca(&polacaInversa, getComparadorAssemblerI(aux));
+		insertarPolaca(&polacaInversa, ""); // dejo el lugar para el salto
+		desapilar(&pValores,aux);// recupero el lugar que guarde antes
+		auxInt = atoi(aux); // convierto el lugar a int
+		sprintf(aux,"%d",cantPolaca) ;
+		reemplazarValor(&polacaInversa,aux,auxInt); // reemplazo el lugar que habia guardado con la posicion proxima donde empieza el bloque
+		sprintf(aux,"%d",cantPolaca-1);
+		apilar(&pValores, aux); // guardo la posicion
+	}	
+	| NOT condicion_simple
+	{
+		char aux[100];
+		desapilar(&pValores,aux);
+		insertarPolaca(&polacaInversa, getComparadorAssembler(aux));
+		insertarPolaca(&polacaInversa, "");
+		sprintf(aux,"%d",cantPolaca-1);
+		apilar(&pValores, aux);
+	};
 
 comparador: 
 	OP_COMPARACION_DISTINTO 
 		{
 			printf("Comparador OK\n");
-			apilar(&pValores, getComparadorAssembler("!="));
+			apilar(&pValores, "!=");
 		};
 	| OP_COMPARACION_MAYOR_A 
 		{
 			printf("Comparador OK\n");
-			apilar(&pValores, getComparadorAssembler(">"));
+			apilar(&pValores, ">");
 		};
 	| OP_COMPARACION_MAYOR_IGUAL_A 
 		{
 			printf("Comparador OK\n");
-			apilar(&pValores, getComparadorAssembler(">="));
+			apilar(&pValores, ">=");
 		};
 	| OP_COMPARACION_MENOR_A 
 		{
 			printf("Comparador OK\n");
-			apilar(&pValores, getComparadorAssembler("<"));
+			apilar(&pValores, "<");
 		};
 	| OP_COMPARACION_MENOR_IGUAL_A 
 		{
 			printf("Comparador OK\n");
-			apilar(&pValores, getComparadorAssembler("<="));
+			apilar(&pValores, "<=");
 		};
 	| OP_COMPARACION_IGUAL
 		{
 			printf("Comparador OK\n");
-			apilar(&pValores, getComparadorAssembler("=="));
+			apilar(&pValores, "==");
 		};
 
 operacion_between: 
@@ -346,11 +420,23 @@ entrada:
 iteracion:
 	WHILE 
 		{
+			char aux[100];
 			printf("While OK\n");
+			sprintf(aux,"%d",cantPolaca);
+			apilar(&pValores, aux);
 		} 
 	condicion THEN lista_sentencias ENDWHILE 
 		{
 			printf("iteracion OK\n");
+			char aux[100];
+			int auxInt;
+			desapilar(&pValores,aux);
+			auxInt = atoi(aux); // convierto el lugar a int
+			sprintf(aux,"%d",cantPolaca+2) ;
+			reemplazarValor(&polacaInversa,aux,auxInt); // reemplazo el lugar que habia guardado con la posicion proxima donde empieza el bloque
+			insertarPolaca(&polacaInversa, "BI");
+			desapilar(&pValores,aux);
+			insertarPolaca(&polacaInversa, aux);
 		};
 
 
@@ -603,6 +689,24 @@ void insertarPolaca(Lista *lista, char *v) {
 
 //Obtiene el codigo assembler para tal comparador
 char* getComparadorAssembler(char* cadena)
+{
+
+	printf("Cadena: %s" , cadena);
+	if(strcmp(cadena, "<") == 0)
+		return "BLT";
+	if(strcmp(cadena, ">=") == 0)
+		return "BGE";
+	if(strcmp(cadena, "==") == 0)
+		return "BEQ";
+	if(strcmp(cadena, ">") == 0)
+		return "BGT";
+	if(strcmp(cadena, "!=") == 0)
+		return "BNE";
+	if(strcmp(cadena, "<=") == 0)
+		return "BLE";
+	return NULL;
+}
+char* getComparadorAssemblerI(char* cadena)
 {
 
 	printf("Cadena: %s" , cadena);

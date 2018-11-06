@@ -54,13 +54,13 @@ void insertarAtras(Lista *lista, char *v, int indice) {
 void reemplazarValor(Lista *lista, char *v, int indice){
    pNodo nodo = lista->primero->siguiente;
    pNodo primerNodo = lista->primero;
-   if(atoi(primerNodo->valor) == indice){
+   if(primerNodo->indice == indice){
 		strcpy(primerNodo->valor, v);
 		return;
    }
    while(nodo != primerNodo)
    {
-		if(atoi(nodo->valor) == indice){
+		if(nodo->indice == indice){
 			strcpy(nodo->valor, v);
 			return;
 		}	
@@ -73,7 +73,7 @@ void mostrarLista(Lista *lista)
    pNodo nodo = lista->primero;
    while(nodo)
    {
-      printf("%s\n", nodo->valor);
+      printf("%d: %s\n",nodo->indice, nodo->valor);
       nodo = nodo->siguiente;
    }
 

@@ -39,6 +39,9 @@ Lista polacaInversa;
 Pila pValores;
 	
 int buscarEnTOS(char*);
+void escribirSymbol(FILE* archAS,char * valor, int* puntPol,Pila* pAssembly,int* cantAuxAs);
+void escribirAsembler();
+int convertRef(char * ref);
 void insertar_ID_en_Tabla(char*);
 void insertar_STRING_en_Tabla(char*);
 void insertar_ENTERO_en_Tabla(int);
@@ -619,6 +622,7 @@ int main(int argc,char *argv[])
 		  exit(1);
 	  }
 	  mostrarLista(&polacaInversa);
+	  escribirAsembler();
   }
   fclose(yyin);
   return 0;
@@ -826,3 +830,138 @@ char* getComparadorAssemblerI(char* cadena)
 		return "BGT";
 	return NULL;
 }
+
+
+	
+void escribirAsembler(){
+	FILE* archAS = fopen("test.asm", "w+");
+	char auxAssS[100];
+	int cantAuxAs = 0;
+	int i;
+	Pila pAssembly = crearPila();
+	fprintf(archAS, "hola");
+	for(i = 0; i < cantPolaca; i++){
+		obtenerValor(&polacaInversa, auxAssS, i);
+		escribirSymbol(archAS,auxAssS,&i,&pAssembly,&cantAuxAs);	
+	}		
+	fclose(archAS);
+}
+
+int convertRef(char * ref){
+	return atoi(ref);
+}
+
+void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly,int* cantAuxAs){
+	char auxTest[100];
+	char auxTest2[100];
+	if(strcmp(valorLeido, "BI") == 0){
+		(*puntPol)++;
+		obtenerValor(&polacaInversa, auxTest, *puntPol);
+		fprintf(archAS, "%s %d\n",valorLeido,convertRef(auxTest));
+		return;
+	}
+	if(strcmp(valorLeido, "BLT") == 0){
+		(*puntPol)++;
+		obtenerValor(&polacaInversa, auxTest, *puntPol);
+		fprintf(archAS, "%s %d\n",valorLeido,convertRef(auxTest));
+		return;
+	}
+	if(strcmp(valorLeido, "BLE") == 0){
+		(*puntPol)++;
+		obtenerValor(&polacaInversa, auxTest, *puntPol);
+		fprintf(archAS, "%s %d\n",valorLeido,convertRef(auxTest));
+		return;
+	}
+	if(strcmp(valorLeido, "BNE") == 0){
+		(*puntPol)++;
+		obtenerValor(&polacaInversa, auxTest, *puntPol);
+		fprintf(archAS, "%s %d\n",valorLeido,convertRef(auxTest));
+		return;
+	}
+	if(strcmp(valorLeido, "BEQ") == 0){
+		(*puntPol)++;
+		obtenerValor(&polacaInversa, auxTest, *puntPol);
+		fprintf(archAS, "%s %d\n",valorLeido,convertRef(auxTest));
+		return;
+	}
+	if(strcmp(valorLeido, "BGT") == 0){
+		(*puntPol)++;
+		obtenerValor(&polacaInversa, auxTest, *puntPol);
+		fprintf(archAS, "%s %d\n",valorLeido,convertRef(auxTest));
+		return;
+	}
+	if(strcmp(valorLeido, "BGE") == 0){
+		(*puntPol)++;
+		obtenerValor(&polacaInversa, auxTest, *puntPol);
+		fprintf(archAS, "%s %d\n",valorLeido,convertRef(auxTest));
+		return;
+	}
+	if(strcmp(valorLeido, "CMP") == 0){
+		desapilar(pAssembly,auxTest2);
+		desapilar(pAssembly,auxTest);
+		fprintf(archAS, "CMP %s,%s\n",auxTest2,auxTest);
+		return;
+	}
+	if(strcmp(valorLeido, "=") == 0){
+		desapilar(pAssembly,auxTest2);
+		desapilar(pAssembly,auxTest);
+		fprintf(archAS, "MOV R1,%s\n",auxTest2);
+		fprintf(archAS, "MOV %s,R1\n",auxTest);
+		return;
+	}
+	if(strcmp(valorLeido, "+") == 0){
+		desapilar(pAssembly,auxTest2);
+		desapilar(pAssembly,auxTest);
+		fprintf(archAS, "MOV R1,%s\n",auxTest);
+		fprintf(archAS, "ADD R1,%s\n",auxTest2);
+		sprintf(auxTest,"@aux%d",*cantAuxAs);
+		fprintf(archAS, "MOV %s,R1\n",auxTest);
+		apilar(pAssembly,auxTest);
+		(*cantAuxAs)++;
+		return;
+	}
+	if(strcmp(valorLeido, "-") == 0){
+		desapilar(pAssembly,auxTest2);
+		desapilar(pAssembly,auxTest);
+		fprintf(archAS, "MOV R1,%s\n",auxTest);
+		fprintf(archAS, "SUB R1,%s\n",auxTest2);
+		sprintf(auxTest,"@aux%d",*cantAuxAs);
+		fprintf(archAS, "MOV %s,R1\n",auxTest);
+		apilar(pAssembly,auxTest);
+		(*cantAuxAs)++;
+		return;
+	}
+	if(strcmp(valorLeido, "*") == 0){
+		desapilar(pAssembly,auxTest2);
+		desapilar(pAssembly,auxTest);
+		fprintf(archAS, "MOV R1,%s\n",auxTest);
+		fprintf(archAS, "MUL R1,%s\n",auxTest2);
+		sprintf(auxTest,"@aux%d",*cantAuxAs);
+		fprintf(archAS, "MOV %s,R1\n",auxTest);
+		apilar(pAssembly,auxTest);
+		(*cantAuxAs)++;
+		return;
+	}
+	if(strcmp(valorLeido, "/") == 0){
+		desapilar(pAssembly,auxTest2);
+		desapilar(pAssembly,auxTest);
+		fprintf(archAS, "MOV R1,%s\n",auxTest);
+		fprintf(archAS, "DIV R1,%s\n",auxTest2);
+		sprintf(auxTest,"@aux%d",*cantAuxAs);
+		fprintf(archAS, "MOV %s,R1\n",auxTest);
+		apilar(pAssembly,auxTest);
+		(*cantAuxAs)++;
+		return;
+	}
+	if(strcmp(valorLeido, "WRITE") == 0){
+		//hagoalgo();
+		return;
+	}
+	if(strcmp(valorLeido, "READ") == 0){
+		//hagoalgo();
+		return;
+	}
+	apilar(pAssembly,valorLeido);
+
+}
+

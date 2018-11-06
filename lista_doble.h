@@ -24,5 +24,6 @@ void insertarAdelante(Lista *l, char *v);
 void insertarAtras(Lista *l, char *v, int indice);
 void mostrarLista(Lista *l);
 void reemplazarValor(Lista *lista, char *v, int indice);
+void obtenerValor(Lista *lista, char *v, int indice);
 
 Lista crearLista();

@@ -67,6 +67,22 @@ void reemplazarValor(Lista *lista, char *v, int indice){
 		nodo = nodo->siguiente;
    }
 }
+void obtenerValor(Lista *lista, char *v, int indice){
+   pNodo nodo = lista->primero->siguiente;
+   pNodo primerNodo = lista->primero;
+   if(primerNodo->indice == indice){
+		strcpy(v,primerNodo->valor);
+		return;
+   }
+   while(nodo != primerNodo)
+   {
+		if(nodo->indice == indice){
+			strcpy(v,nodo->valor);
+			return;
+		}	
+		nodo = nodo->siguiente;
+   }
+}
 
 void mostrarLista(Lista *lista)
 {

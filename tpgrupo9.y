@@ -42,8 +42,9 @@ Pila pValores;
 int buscarEnTOS(char*);
 int buscarEnTOSID(char*);
 char* getTipoTOS(char*);
+char* getTipoTOSID(char*);
 char* getNombreTOS(char*);
-void escribirSymbol(FILE* archAS,char * valor, int* puntPol,Pila* pAssembly,int* cantAuxAs);
+void escribirSymbol(FILE* archAS,char * valor, int* puntPol,Pila* pAssembly);
 void escribirAsembler();
 void escribirCabecera();
 int convertRef(char * ref);
@@ -409,7 +410,7 @@ operacion_between:
 	BETWEEN P_A ID COMA C_A
 		{
 			char tipo[11];
-			strcpy(tipo,getTipoTOS($<str_val>3));
+			strcpy(tipo,getTipoTOSID($<str_val>3));
 			insertarPolacaTipo(&polacaInversa, $<str_val>3, tipo);
 			strcpy(auxBetween,$<str_val>3);
 			
@@ -535,7 +536,7 @@ lista_expresiones:
 			char aux2[100];
 			desapilar(&pValores,aux); // obtengo el ID
 			char tipo[11];
-			strcpy(tipo,getTipoTOS(aux));
+			strcpy(tipo,getTipoTOSID(aux));
 			insertarPolacaTipo(&polacaInversa, aux, tipo);
 			//insertarPolaca(&polacaInversa, aux);
 			insertarPolaca(&polacaInversa, "CMP");
@@ -553,7 +554,7 @@ lista_expresiones:
 			char aux2[100];
 			desapilar(&pValores,aux); // obtengo el ID
 			char tipo[11];
-			strcpy(tipo,getTipoTOS(aux));
+			strcpy(tipo,getTipoTOSID(aux));
 			insertarPolacaTipo(&polacaInversa, aux, tipo);
 			//insertarPolaca(&polacaInversa, aux);
 			insertarPolaca(&polacaInversa, "CMP");
@@ -572,7 +573,8 @@ asignacion:
 		{
 			//insertarPolaca(&polacaInversa, $<str_val>$);
 			char tipo[11];
-			strcpy(tipo,getTipoTOS($<str_val>1));
+			strcpy(tipo,getTipoTOSID($<str_val>1));
+			printf("TIPO %s , NOMBRE %s \n",tipo,$<str_val>1);
 			insertarPolacaTipo(&polacaInversa, $<str_val>1, tipo);
 		} 
 	ASIG 
@@ -612,7 +614,7 @@ salida:
 		{
 			printf("WRITE OK \n");
 			char tipo[11];
-			strcpy(tipo,getTipoTOS($<str_val>2));
+			strcpy(tipo,getTipoTOSID($<str_val>2));
 			insertarPolacaTipo(&polacaInversa, $<str_val>2, tipo);
 			//insertarPolaca(&polacaInversa, $<str_val>2);
 			insertarPolaca(&polacaInversa, "WRITE");
@@ -623,7 +625,7 @@ entrada:
 		{
 			printf("entrada OK\n");
 			char tipo[11];
-			strcpy(tipo,getTipoTOS($<str_val>2));
+			strcpy(tipo,getTipoTOSID($<str_val>2));
 			insertarPolacaTipo(&polacaInversa, $<str_val>2, tipo);
 			//insertarPolaca(&polacaInversa, $<str_val>2);
 			insertarPolaca(&polacaInversa, "READ");
@@ -704,7 +706,7 @@ factor:
 		{
 			printf("ID en FACTOR es: %s \n", $<str_val>$);
 			char tipo[11];
-			strcpy(tipo,getTipoTOS($<str_val>$));
+			strcpy(tipo,getTipoTOSID($<str_val>$));
 			insertarPolacaTipo(&polacaInversa, $<str_val>$, tipo);
 			//insertarPolaca(&polacaInversa, $<str_val>$);
 		}
@@ -979,6 +981,23 @@ char * getTipoTOS(char* nombre)
 	return result;
 }
 
+char * getTipoTOSID(char* nombre)
+{
+	int i;
+	char * result=(char*)malloc(sizeof(char) * 11);
+	for (i=0; i<TOStop; i++)
+    {
+		if(strcmp(TOS[i].nombre, nombre) == 0)
+		{
+			strcpy(result,TOS[i].tipo);
+			return result;
+		}
+	}
+	
+	strcpy(result,"");
+	return result;
+}
+
 /*****************************
 	METODOS DE POLACA INVERSA 
 *****************************/
@@ -1055,7 +1074,9 @@ void escribirCabecera()
 	int i;
 	char aux1[100];
 	char aux2[100];
+	char lim[100];
 	int cantOperaciones = 0;
+	sprintf(lim,"%d",LIM_STR);
 	FILE* archPOL = fopen("polaca.txt", "w");
 	for(i = 0; i < cantPolaca; i++){
 		obtenerValor(&polacaInversa, valorLeido, i);
@@ -1078,7 +1099,7 @@ void escribirCabecera()
     fprintf(archAS, ".STACK 200h ;Bytes en el Stack. \n\n");
 
 	fprintf(archAS, ".DATA \n\n");
-	
+	fprintf(archAS, "MAXTEXTSIZE EQU %s\n", lim);
 	fread(&datos, sizeof(datos), 1, tabla);
 
     while (feof(tabla) == 0)
@@ -1126,7 +1147,7 @@ void escribirCabecera()
       fread(&datos, sizeof(datos), 1, tabla);
    }
    
-   
+   //variables para operaciones
    for(i = 0; i < cantOperaciones; i++)
    {
 		strcpy(aux1,"@aux");
@@ -1135,7 +1156,44 @@ void escribirCabecera()
 		fprintf(archAS, "%s \t %s \t ? \n", aux1,"DD");
    }
 	
+	
+	//variables comparacion
+	fprintf(archAS, "%s \t %s \t %s  \n", "_comp1","DD","1");
+	fprintf(archAS, "%s \t %s \t %s  \n", "_comp0","DD","0");
+	
+	//mensaje salida
+	//fprintf(archAS, "msgPRESIONE DB 0DH,0AH, \" Fin de programa. Presione una tecla para salir..\" ,'$'\n");
+
+	
 	fprintf(archAS, "\n .CODE \n");
+	
+	 fprintf(archAS, "\t;***STRLEN***\n");
+     fprintf(archAS, "\tSTRLEN PROC\n");
+     fprintf(archAS, "\t             mov bx,0\n");
+     fprintf(archAS, "\t      STRL:\n");
+     fprintf(archAS, "\t            cmp BYTE PTR [SI+BX],\"$\"\n");
+     fprintf(archAS, "\t            je STREND\n");
+     fprintf(archAS, "\t            inc BX\n");
+     fprintf(archAS, "\t            jmp STRL\n");
+     fprintf(archAS, "\t      STREND:\n");
+     fprintf(archAS, "\t	    ret\n");
+     fprintf(archAS, "\tSTRLEN ENDP \n\n");
+	
+	 fprintf(archAS, "\t;***COPIAR***\n");
+     fprintf(archAS, "\tCOPIAR PROC\n");
+     fprintf(archAS, "\t	call STRLEN  ;***STRLEN***\n");
+     fprintf(archAS, "\t    	cmp bx,MAXTEXTSIZE\n");
+     fprintf(archAS, "\t    	jle COPIARSIZEOK\n");
+     fprintf(archAS, "\t    	mov bx,MAXTEXTSIZE\n");
+     fprintf(archAS, "\t    COPIARSIZEOK:\n");
+     fprintf(archAS, "\t    	mov cx,bx ; la copia se hace de ’CX’ caracteres\n");
+     fprintf(archAS, "\t    	cld ; cld es para que la copia se realice hacia adelante\n");
+     fprintf(archAS, "\t    	rep movsb ; copia la cadea\n");
+     fprintf(archAS, "\t    	mov al,\"$\" ; carácter terminador\n");
+     fprintf(archAS, "\t    	mov BYTE PTR [DI],al\n");
+     fprintf(archAS, "\t	ret\n");
+     fprintf(archAS, "\tCOPIAR ENDP\n\n");
+	
 	fprintf(archAS, "Start:  \n");
 	fprintf(archAS, "MOV AX, @DATA \n");
 	fprintf(archAS, "MOV DS,AX \n");
@@ -1151,7 +1209,6 @@ void escribirAsembler(){
 	FILE* archAS = fopen("test.asm", "a+");
 	
 	char auxAssS[100];
-	int cantAuxAs = 0;
 	int i;
 	Pila pAssembly = crearPila();
 	//fprintf(archAS, "hola");
@@ -1159,8 +1216,16 @@ void escribirAsembler(){
 	
 	for(i = 0; i < cantPolaca; i++){
 		obtenerValor(&polacaInversa, auxAssS, i);
-		escribirSymbol(archAS,auxAssS,&i,&pAssembly,&cantAuxAs);	
+		escribirSymbol(archAS,auxAssS,&i,&pAssembly);	
 	}		
+	/*fprintf(archAS, " MOV dx,OFFSET msgPRESIONE\n");
+	fprintf(archAS, " MOV ah,09\n");
+	fprintf(archAS, " INT 21h\n");
+	
+	fprintf(archAS, " MOV ah, 01\n");
+	fprintf(archAS, " INT 21h\n");*/
+	fprintf(archAS, " MOV ax, 4C00h\n");
+	fprintf(archAS, " INT 21h\n");
 	fprintf(archAS, "end Start \n");
 	fclose(archAS);
 }
@@ -1169,11 +1234,12 @@ int convertRef(char * ref){
 	return atoi(ref);
 }
 
-void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly,int* cantAuxAs){
+void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly){
 	char auxTest[100];
 	char auxTest2[100];
 	char tipo[11];
-	
+	char aux3[100];
+	int cantAux = 0;
 	if(strcmp(valorLeido, "BI") == 0){
 		(*puntPol)++;
 		obtenerValor(&polacaInversa, auxTest, *puntPol);
@@ -1220,7 +1286,9 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 		desapilar(pAssembly,auxTest2);
 		if((strcmp(auxTest2,"1")==0) || (strcmp(auxTest2,"0")==0))
 		{
-			fprintf(archAS, "FILD %s \n",auxTest2);
+			strcpy(aux3,"_comp");
+			strcat(aux3,auxTest2);
+			fprintf(archAS, "FILD %s \n",aux3);
 		} else {
 					if(strstr(auxTest2, "@aux") != NULL)
 					{
@@ -1236,12 +1304,14 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 							fprintf(archAS, "FLD %s \n",auxTest2);
 						}
 					}
-				}
+		}
 		
 		desapilar(pAssembly,auxTest);
 		if((strcmp(auxTest,"1")==0) || (strcmp(auxTest,"0")==0))
 		{
-			fprintf(archAS, "FILD %s \n",auxTest);
+			strcpy(aux3,"_comp");
+			strcat(aux3,auxTest);
+			fprintf(archAS, "FILD %s \n",aux3);
 		}else {
 			if(strstr(auxTest, "@aux") != NULL)
 			{
@@ -1273,75 +1343,183 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 		obtenerTipo(&polacaInversa, tipo, auxTest);
 		if(strcmp(tipo,"ENTERO") == 0)
 		{
-			fprintf(archAS, "DisplayInteger %s \n",auxTest);
+			fprintf(archAS, "FILD %s \n",auxTest2);
+			fprintf(archAS, "FISTP %s \n",auxTest);
 		}
 		if(strcmp(tipo,"REAL") == 0)
 		{
-			fprintf(archAS, "DisplayFloat %s,6  \n",auxTest);
+			fprintf(archAS, "FLD %s \n",auxTest2);
+			fprintf(archAS, "FSTP %s \n",auxTest);
 		}
-		
-		fprintf(archAS, "MOV R1,%s\n",auxTest2);
-		fprintf(archAS, "MOV %s,R1\n",auxTest);
+		if(strcmp(tipo,"CADENA") == 0)
+		{
+			fprintf(archAS, "MOV si, OFFSET %s\n",auxTest2);
+			fprintf(archAS, "MOV di,OFFSET %s \n",auxTest);
+			fprintf(archAS, "CALL COPIAR \n",auxTest, auxTest2);
+		}
 		return;
 	}
 	if(strcmp(valorLeido, "+") == 0){
 		desapilar(pAssembly,auxTest2);
 		desapilar(pAssembly,auxTest);
-		fprintf(archAS, "MOV R1,%s\n",auxTest);
-		fprintf(archAS, "ADD R1,%s\n",auxTest2);
-		sprintf(auxTest,"@aux%d",*cantAuxAs);
-		fprintf(archAS, "MOV %s,R1\n",auxTest);
+		
+		obtenerTipo(&polacaInversa, tipo, auxTest);
+		if(strcmp(tipo,"REAL") == 0)
+		{
+			fprintf(archAS, "FLD %s \n",auxTest);
+			obtenerTipo(&polacaInversa, tipo, auxTest2);
+			if(strcmp(tipo,"REAL") == 0)
+			{
+				fprintf(archAS, "FLD %s \n",auxTest2);
+				fprintf(archAS, "FADD \n");
+				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
+			} else {
+				fprintf(archAS, "FILD %s \n",auxTest2);
+				fprintf(archAS, "FADD \n");
+				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
+			}
+		} else {
+			obtenerTipo(&polacaInversa, tipo, auxTest2);
+			if(strcmp(tipo,"REAL") == 0)
+			{
+				fprintf(archAS, "FLD %s \n",auxTest);
+				fprintf(archAS, "FLD %s \n",auxTest2);
+				fprintf(archAS, "FADD \n");
+				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
+			} else {
+				fprintf(archAS, "FILD %s \n",auxTest);
+				fprintf(archAS, "FILD %s \n",auxTest2);
+				fprintf(archAS, "FADD \n");
+				fprintf(archAS, "FISTP @aux%d \n",(cantAux++));
+			}
+		}
 		apilar(pAssembly,auxTest);
-		(*cantAuxAs)++;
 		return;
 	}
 	if(strcmp(valorLeido, "-") == 0){
 		desapilar(pAssembly,auxTest2);
 		desapilar(pAssembly,auxTest);
-		fprintf(archAS, "MOV R1,%s\n",auxTest);
-		fprintf(archAS, "SUB R1,%s\n",auxTest2);
-		sprintf(auxTest,"@aux%d",*cantAuxAs);
-		fprintf(archAS, "MOV %s,R1\n",auxTest);
+		obtenerTipo(&polacaInversa, tipo, auxTest);
+		if(strcmp(tipo,"REAL") == 0)
+		{
+			fprintf(archAS, "FLD %s \n",auxTest);
+			obtenerTipo(&polacaInversa, tipo, auxTest2);
+			if(strcmp(tipo,"REAL") == 0)
+			{
+				fprintf(archAS, "FLD %s \n",auxTest2);
+				fprintf(archAS, "FSUB \n");
+				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
+			} else {
+				fprintf(archAS, "FILD %s \n",auxTest2);
+				fprintf(archAS, "FSUB \n");
+				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
+			}
+		} else {
+			obtenerTipo(&polacaInversa, tipo, auxTest2);
+			if(strcmp(tipo,"REAL") == 0)
+			{
+				fprintf(archAS, "FLD %s \n",auxTest);
+				fprintf(archAS, "FLD %s \n",auxTest2);
+				fprintf(archAS, "FSUB \n");
+				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
+			} else {
+				fprintf(archAS, "FILD %s \n",auxTest);
+				fprintf(archAS, "FILD %s \n",auxTest2);
+				fprintf(archAS, "FSUB \n");
+				fprintf(archAS, "FISTP @aux%d \n",(cantAux++));
+			}
+		}
 		apilar(pAssembly,auxTest);
-		(*cantAuxAs)++;
 		return;
 	}
 	if(strcmp(valorLeido, "*") == 0){
 		desapilar(pAssembly,auxTest2);
 		desapilar(pAssembly,auxTest);
-		fprintf(archAS, "MOV R1,%s\n",auxTest);
-		fprintf(archAS, "MUL R1,%s\n",auxTest2);
-		sprintf(auxTest,"@aux%d",*cantAuxAs);
-		fprintf(archAS, "MOV %s,R1\n",auxTest);
+		if(strcmp(tipo,"REAL") == 0)
+		{
+			fprintf(archAS, "FLD %s \n",auxTest);
+			obtenerTipo(&polacaInversa, tipo, auxTest2);
+			if(strcmp(tipo,"REAL") == 0)
+			{
+				fprintf(archAS, "FLD %s \n",auxTest2);
+				fprintf(archAS, "FMUL \n");
+				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
+			} else {
+				fprintf(archAS, "FILD %s \n",auxTest2);
+				fprintf(archAS, "FMUL \n");
+				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
+			}
+		} else {
+			obtenerTipo(&polacaInversa, tipo, auxTest2);
+			if(strcmp(tipo,"REAL") == 0)
+			{
+				fprintf(archAS, "FLD %s \n",auxTest);
+				fprintf(archAS, "FLD %s \n",auxTest2);
+				fprintf(archAS, "FMUL \n");
+				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
+			} else {
+				fprintf(archAS, "FILD %s \n",auxTest);
+				fprintf(archAS, "FILD %s \n",auxTest2);
+				fprintf(archAS, "FMUL \n");
+				fprintf(archAS, "FISTP @aux%d \n",(cantAux++));
+			}
+		}
 		apilar(pAssembly,auxTest);
-		(*cantAuxAs)++;
 		return;
 	}
 	if(strcmp(valorLeido, "/") == 0){
 		desapilar(pAssembly,auxTest2);
 		desapilar(pAssembly,auxTest);
-		fprintf(archAS, "MOV R1,%s\n",auxTest);
-		fprintf(archAS, "DIV R1,%s\n",auxTest2);
-		sprintf(auxTest,"@aux%d",*cantAuxAs);
-		fprintf(archAS, "MOV %s,R1\n",auxTest);
+		if(strcmp(tipo,"REAL") == 0)
+		{
+			fprintf(archAS, "FLD %s \n",auxTest);
+			obtenerTipo(&polacaInversa, tipo, auxTest2);
+			if(strcmp(tipo,"REAL") == 0)
+			{
+				fprintf(archAS, "FLD %s \n",auxTest2);
+				fprintf(archAS, "FDIV \n");
+				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
+			} else {
+				fprintf(archAS, "FILD %s \n",auxTest2);
+				fprintf(archAS, "FDIV \n");
+				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
+			}
+		} else {
+			obtenerTipo(&polacaInversa, tipo, auxTest2);
+			if(strcmp(tipo,"REAL") == 0)
+			{
+				fprintf(archAS, "FLD %s \n",auxTest);
+				fprintf(archAS, "FLD %s \n",auxTest2);
+				fprintf(archAS, "FDIV \n");
+				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
+			} else {
+				fprintf(archAS, "FILD %s \n",auxTest);
+				fprintf(archAS, "FILD %s \n",auxTest2);
+				fprintf(archAS, "FDIV \n");
+				fprintf(archAS, "FISTP @aux%d \n",(cantAux++));
+			}
+		}
 		apilar(pAssembly,auxTest);
-		(*cantAuxAs)++;
 		return;
 	}
 	if(strcmp(valorLeido, "WRITE") == 0){
 		desapilar(pAssembly,auxTest);
 		obtenerTipo(&polacaInversa, tipo, auxTest);
+		printf("TIPO %s , NOMBRE %s \n",tipo,auxTest);
 		if(strcmp(tipo,"ENTERO") == 0)
 		{
 			fprintf(archAS, "DisplayInteger %s \n",auxTest);
+			fprintf(archAS, "newLine \n");
 		}
 		if(strcmp(tipo,"REAL") == 0)
 		{
 			fprintf(archAS, "DisplayFloat %s,6  \n",auxTest);
+			fprintf(archAS, "newLine \n");
 		}
 		if(strcmp(tipo,"CADENA") == 0)
 		{
 			fprintf(archAS, "displayString %s \n",auxTest);
+			fprintf(archAS, "newLine \n");
 		}
 		return;
 	}

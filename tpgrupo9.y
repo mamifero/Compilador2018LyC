@@ -1393,7 +1393,8 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 				fprintf(archAS, "FISTP @aux%d \n",(cantAux++));
 			}
 		}
-		apilar(pAssembly,auxTest);
+		sprintf(aux3,"@aux%d", cantAux - 1);
+		apilar(pAssembly,aux3);
 		return;
 	}
 	if(strcmp(valorLeido, "-") == 0){
@@ -1429,7 +1430,8 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 				fprintf(archAS, "FISTP @aux%d \n",(cantAux++));
 			}
 		}
-		apilar(pAssembly,auxTest);
+		sprintf(aux3,"@aux%d", cantAux - 1);
+		apilar(pAssembly,aux3);
 		return;
 	}
 	if(strcmp(valorLeido, "*") == 0){
@@ -1464,7 +1466,8 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 				fprintf(archAS, "FISTP @aux%d \n",(cantAux++));
 			}
 		}
-		apilar(pAssembly,auxTest);
+		sprintf(aux3,"@aux%d", cantAux - 1);
+		apilar(pAssembly,aux3);
 		return;
 	}
 	if(strcmp(valorLeido, "/") == 0){
@@ -1496,10 +1499,11 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 				fprintf(archAS, "FILD %s \n",auxTest);
 				fprintf(archAS, "FILD %s \n",auxTest2);
 				fprintf(archAS, "FDIV \n");
-				fprintf(archAS, "FISTP @aux%d \n",(cantAux++));
+				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
 			}
 		}
-		apilar(pAssembly,auxTest);
+		sprintf(aux3,"@aux%d", cantAux - 1);
+		apilar(pAssembly,aux3);
 		return;
 	}
 	if(strcmp(valorLeido, "WRITE") == 0){
@@ -1513,7 +1517,7 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 		}
 		if(strcmp(tipo,"REAL") == 0)
 		{
-			fprintf(archAS, "DisplayFloat %s,6  \n",auxTest);
+			fprintf(archAS, "DisplayFloat %s,3  \n",auxTest);
 			fprintf(archAS, "newLine \n");
 		}
 		if(strcmp(tipo,"CADENA") == 0)

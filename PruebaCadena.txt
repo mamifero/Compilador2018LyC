@@ -1,0 +1,14 @@
+DECVAR
+
+g:STRING
+
+ENDDEC
+
+-/soy un comentario/-
+
+WRITE "HOLA MUNDO"
+
+g = "soy una cadena@"
+
+
+WRITE g

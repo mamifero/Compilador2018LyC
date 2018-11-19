@@ -1,14 +1,60 @@
 DECVAR
-
+a,b:FLOAT
+c:INTEGER
+d,h,i,j:FLOAT
+e,f:INTEGER
 g:STRING
-
 ENDDEC
 
 -/soy un comentario/-
 
-WRITE "HOLA MUNDO"
+c= 9
+a= 57.1
+b= 9.
+d=.9
+
+e = -9
+h = -429.1
+i= -9.
+j=-.9
+
+b=.9
+
+a = a+b
+d = a+b
+d= e*f
+
+IF(a>b)
+THEN
+c= 9
+ENDIF
+
+WHILE(b!=a)
+THEN
+a = d * 2
+READ b
+ENDWHILE
+
+READ c
+
+WHILE(BETWEEN(a,[b+2;d]))
+THEN
+d = d * 2
+WRITE d
+ENDWHILE
+
+IF(INLIST(a,[9.6;(b+d)/b;b*d]))
+THEN
+WRITE "Esta en la lista"
+ELSE
+WRITE "un else"
+ENDIF
+
+WRITE ""
 
 g = "soy una cadena@"
 
-
+WRITE "soy una cade%na para salida"
+READ g
 WRITE g
+-/ un comentario -/otro comentario adentro/- el mismo comentario/-

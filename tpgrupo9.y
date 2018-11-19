@@ -16,7 +16,7 @@ int yyerror();
 
 int yystopparser=0;
 FILE  *yyin;
-FILE *tos;         
+
 int TOStop = 0;	
 
 // TABLA SIMBOLOS
@@ -53,7 +53,7 @@ void insertar_STRING_en_Tabla(char*,char*);
 void insertar_ENTERO_en_Tabla(int,char*);
 void insertar_REAL_en_Tabla(double,char*);
 void mostrarTOS();
-void GrabaArchivoTabla();
+
 void guardarTokens(char*);
 void asignarTipo(int);
 char* floatAString(float);
@@ -122,7 +122,9 @@ program:
 		{ 
 			printf("Compilacion OK\n"); 
 			mostrarTOS();
-			GrabaArchivoTabla();
+			mostrarLista(&polacaInversa);
+			escribirAsembler();
+			
 		};
 
 programa: 
@@ -741,19 +743,8 @@ int main(int argc,char *argv[])
   else
   {
 	  yyparse();
-	  if ((tos = fopen ("TablaDeSimbolos.txt","w"))== NULL)
-	  {
-		  printf("No se puede crear el archivo de la tabla de simbolos");
-		  exit(1);
-	  }
-	  mostrarTOS();
-	  if(fclose(tos)!=0)
-	  {
-		  printf("No se puede CERRAR el archivo de la tabla de simbolos");
-		  exit(1);
-	  }
-	  mostrarLista(&polacaInversa);
-	  escribirAsembler();
+	  
+	  
   }
   fclose(yyin);
   return 0;
@@ -889,14 +880,7 @@ void insertar_REAL_en_Tabla(double token, char * sal)
 	}
 }
 
-void GrabaArchivoTabla()
-{
-     FILE * tsBin = fopen("TS_assembler.txt","wb");
-     int k;
-     for(k=0;k<TOStop;k++)
-         fwrite(&TOS[k],sizeof(tablaDeSimbolo),1,tsBin);
-     fclose(tsBin);
-}
+
 
 
 
@@ -904,6 +888,12 @@ void mostrarTOS()
 {
     int i;
 	char aux[100];
+	FILE *tos;         
+	if ((tos = fopen ("TablaDeSimbolos.txt","w"))== NULL)
+	  {
+		  printf("No se puede crear el archivo de la tabla de simbolos");
+		  exit(1);
+	  }
     fprintf(tos,"\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n");
     for (i=0; i<TOStop; i++)
     {
@@ -914,6 +904,12 @@ void mostrarTOS()
     }
 
     fprintf(tos,"\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n");
+	
+	if(fclose(tos)!=0)
+	  {
+		  printf("No se puede CERRAR el archivo de la tabla de simbolos");
+		  exit(1);
+	  }
 }
 
 
@@ -1069,7 +1065,7 @@ void escribirCabecera()
 {
     //FILE *tabla = fopen("TS_assembler.txt","r");
     tablaDeSimbolo datos;
-	FILE* archAS = fopen("Final.asm", "w");
+	FILE* archAS = fopen("assembler/Final.asm", "w");
 	char valorLeido[100];
 	int i;
 	char aux1[100];
@@ -1207,7 +1203,7 @@ void escribirCabecera()
 void escribirAsembler(){
 	
 	escribirCabecera();
-	FILE* archAS = fopen("Final.asm", "a+");
+	FILE* archAS = fopen("assembler/Final.asm", "a+");
 	
 	char auxAssS[100];
 	int i;

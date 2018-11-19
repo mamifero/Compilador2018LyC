@@ -29,13 +29,16 @@ ENDIF
 
 WHILE(b!=a)
 THEN
-d = d * 2
+a = d * 2
+READ b
 ENDWHILE
 
+READ c
 
 WHILE(BETWEEN(a,[b+2;d]))
 THEN
 d = d * 2
+WRITE d
 ENDWHILE
 
 IF(INLIST(a,[9.6;(b+d)/b;b*d]))

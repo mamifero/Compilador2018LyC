@@ -51,6 +51,29 @@ void insertarAtras(Lista *lista, char *v, int indice) {
    }
 }
 
+void insertarAtrasTipo(Lista *lista, char *v, int indice, char *tipo) {
+   pNodo nuevo;
+
+   /* Crear un nodo nuevo */
+   nuevo = (pNodo)malloc(sizeof(tipoNodo));
+   nuevo->valor = (char*)malloc(sizeof(char)*100);
+   nuevo->tipo = (char*)malloc(sizeof(char)*11);
+   nuevo->indice = indice;
+   strcpy(nuevo->valor, v);
+   strcpy(nuevo->tipo, tipo);
+   nuevo->siguiente = NULL;
+
+   if(lista->ultimo == NULL)
+   {
+      lista->primero = lista->ultimo = nuevo;
+      nuevo->anterior = NULL;
+   } else {
+      nuevo->anterior = lista->ultimo;
+      lista->ultimo->siguiente = nuevo;
+      lista->ultimo = nuevo;
+   }
+}
+
 void reemplazarValor(Lista *lista, char *v, int indice){
    pNodo nodo = lista->primero->siguiente;
    pNodo primerNodo = lista->primero;
@@ -78,6 +101,23 @@ void obtenerValor(Lista *lista, char *v, int indice){
    {
 		if(nodo->indice == indice){
 			strcpy(v,nodo->valor);
+			return;
+		}	
+		nodo = nodo->siguiente;
+   }
+}
+
+void obtenerTipo(Lista *lista, char *t, char * v){
+   pNodo nodo = lista->primero->siguiente;
+   pNodo primerNodo = lista->primero;
+   if(strcmp(primerNodo->valor,v)==0){
+		strcpy(t,primerNodo->tipo);
+		return;
+   }
+   while(nodo != primerNodo)
+   {
+		if(strcmp(nodo->valor,v)==0){
+			strcpy(t,nodo->tipo);
 			return;
 		}	
 		nodo = nodo->siguiente;

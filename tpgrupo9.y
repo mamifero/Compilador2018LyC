@@ -1499,7 +1499,7 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 				fprintf(archAS, "FILD %s \n",auxTest);
 				fprintf(archAS, "FILD %s \n",auxTest2);
 				fprintf(archAS, "FDIV \n");
-				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
+				fprintf(archAS, "FISTP @aux%d \n",(cantAux++));
 			}
 		}
 		sprintf(aux3,"@aux%d", cantAux - 1);

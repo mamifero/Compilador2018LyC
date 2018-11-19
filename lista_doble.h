@@ -5,6 +5,7 @@
 
 typedef struct _nodo {
    char *valor;
+   char *nombre;
    int indice;
    char *tipo;
    struct _nodo *siguiente;
@@ -28,5 +29,6 @@ void mostrarLista(Lista *l);
 void reemplazarValor(Lista *lista, char *v, int indice);
 void obtenerValor(Lista *lista, char *v, int indice);
 void obtenerTipo(Lista *lista, char *t, char * v);
+char* modificarNombre(char* n, char *rep, char *with);
 
 Lista crearLista();

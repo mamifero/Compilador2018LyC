@@ -30,6 +30,7 @@ typedef struct
 } tablaDeSimbolo;
 
 int cantPolaca = 0;
+int indiceConst = 0;
 char auxBetween[100];
 int contInlist;
 tablaDeSimbolo TOS[100];
@@ -39,15 +40,17 @@ Lista polacaInversa;
 Pila pValores;
 	
 int buscarEnTOS(char*);
+int buscarEnTOSID(char*);
 char* getTipoTOS(char*);
+char* getNombreTOS(char*);
 void escribirSymbol(FILE* archAS,char * valor, int* puntPol,Pila* pAssembly,int* cantAuxAs);
 void escribirAsembler();
 void escribirCabecera();
 int convertRef(char * ref);
 void insertar_ID_en_Tabla(char*);
-void insertar_STRING_en_Tabla(char*);
-void insertar_ENTERO_en_Tabla(int);
-void insertar_REAL_en_Tabla(double);
+void insertar_STRING_en_Tabla(char*,char*);
+void insertar_ENTERO_en_Tabla(int,char*);
+void insertar_REAL_en_Tabla(double,char*);
 void mostrarTOS();
 void GrabaArchivoTabla();
 void guardarTokens(char*);
@@ -589,17 +592,19 @@ asignable:
 	| CADENA
 		{
 			printf("STR:%s \n", $<str_val>1);
-			insertar_STRING_en_Tabla($<str_val>1);
-			insertarPolaca(&polacaInversa, $<str_val>1);
+			char aux[100];
+			insertar_STRING_en_Tabla($<str_val>1,aux);
+			insertarPolaca(&polacaInversa, aux);
 		};
 
 salida:
 	WRITE CADENA 
 		{
 			char tipo[11];
+			char aux[100];
 			strcpy(tipo,"CADENA");
-			insertar_STRING_en_Tabla($<str_val>2);
-			insertarPolacaTipo(&polacaInversa, $<str_val>2, tipo);
+			insertar_STRING_en_Tabla($<str_val>2,aux);
+			insertarPolacaTipo(&polacaInversa, aux, tipo);
 			//insertarPolaca(&polacaInversa, $<str_val>2);
 			insertarPolaca(&polacaInversa, "WRITE");
 		}
@@ -706,15 +711,17 @@ factor:
 	| ENTERO 
 		{
 			printf("ENTERO en FACTOR es: %d \n", $<int_val>$);
-			insertar_ENTERO_en_Tabla($<int_val>$);
-			insertarPolacaTipo(&polacaInversa, intAString($<int_val>$), "ENTERO");
+			char aux[100];
+			insertar_ENTERO_en_Tabla($<int_val>$,aux);
+			insertarPolacaTipo(&polacaInversa, aux, "ENTERO");
 			//insertarPolaca(&polacaInversa, intAString($<int_val>$));
 		}
 	| REAL 
 		{
 			printf("REAL en FACTOR es: %f \n", $<float_val>$);
-			insertar_REAL_en_Tabla($<float_val>$);
-			insertarPolacaTipo(&polacaInversa, floatAString($<int_val>$), "REAL");
+			char aux[100];
+			insertar_REAL_en_Tabla($<float_val>$,aux);
+			insertarPolacaTipo(&polacaInversa, aux, "REAL");
 			//insertarPolaca(&polacaInversa, floatAString($<float_val>$));
 		}
 	|P_A expresion P_C;
@@ -765,7 +772,7 @@ void insertar_ID_en_Tabla(char* token)
 {
 	char aux[100];
 	strcat(aux, token);
-	if(!buscarEnTOS(token))
+	if(!buscarEnTOSID(token))
 	{
 		strcpy(TOS[TOStop].nombre, token);
 		strcpy(TOS[TOStop].tipo,"ID" );
@@ -773,36 +780,48 @@ void insertar_ID_en_Tabla(char* token)
 	}
 }
 
-void insertar_STRING_en_Tabla(char* token)
+void insertar_STRING_en_Tabla(char* token, char* sal)
 {
 	char aux[100];
-	strcpy(aux,"_");
-	strcat(aux, token);
-	if(!buscarEnTOS(aux))
+	char num[100];
+	char * salida;
+	if(!buscarEnTOS(token))
 	{
+		strcpy(aux,"_assemblerconst");
+		sprintf(num, "%d", (++indiceConst));
+		strcat(aux, num);
 		strcpy(TOS[TOStop].nombre, aux);
 		strcpy(TOS[TOStop].tipo,"CADENA" );
 		strcpy(TOS[TOStop].valor, token);
 		TOS[TOStop].longitud = (strlen(token));
 		TOS[TOStop].limite = LIM_STR;
 		TOStop++;
+		strcpy(sal, aux);
+	} else {
+		strcpy(sal,getNombreTOS(token));
 	}
 }
 
-void insertar_ENTERO_en_Tabla(int token)
+void insertar_ENTERO_en_Tabla(int token, char *sal)
 {			
 	char aux[100];
 	char aux2[100];
 	sprintf(aux2, "%d", token);
-	strcpy(aux,"_");
 	strcat(aux, aux2);
-	if(!buscarEnTOS(aux))
+	char num[100];
+	if(!buscarEnTOS(aux2))
 	{
+		strcpy(aux,"_assemblerconst");
+		sprintf(num, "%d", (++indiceConst));
+		strcat(aux, num);
 		strcpy(TOS[TOStop].nombre, aux);
 		strcpy(TOS[TOStop].tipo,"ENTERO");
 		strcpy(TOS[TOStop].valor, aux2);
 		TOS[TOStop].limite = LIM_INT;
 		TOStop++;
+		strcpy(sal, aux);
+	}else {
+		strcpy(sal,getNombreTOS(aux2));
 	}
 }
 
@@ -845,20 +864,26 @@ void asignarTipo(int tipo)
 	indexTokens =0;
 }
 
-void insertar_REAL_en_Tabla(double token)
+void insertar_REAL_en_Tabla(double token, char * sal)
 {
 	char aux[100];
-	strcpy(aux,"_");
 	char aux2[100];
 	sprintf(aux2, "%lf", token);
-	strcat(aux, aux2);
-	if(!buscarEnTOS(aux))
+	char num[100];
+	
+	if(!buscarEnTOS(aux2))
 	{
+		strcpy(aux,"_assemblerconst");
+		sprintf(num, "%d", (++indiceConst));
+		strcat(aux, num);
 		strcpy(TOS[TOStop].nombre,aux);
 		strcpy(TOS[TOStop].tipo,"REAL");
 		strcpy(TOS[TOStop].valor, aux2);
 		TOS[TOStop].limite = LIM_REAL;
 		TOStop++;
+		strcpy(sal, aux);
+	} else {
+		strcpy(sal,getNombreTOS(aux2));
 	}
 }
 
@@ -890,12 +915,12 @@ void mostrarTOS()
 }
 
 
-int buscarEnTOS(char* nombre)
+int buscarEnTOS(char* val)
 {
 	int i;
 	for (i=0; i<TOStop; i++)
     {
-		if(strcmp(TOS[i].nombre, nombre) == 0)
+		if(strcmp(TOS[i].valor, val) == 0)
 		{
 			return 1;
 		}
@@ -904,13 +929,46 @@ int buscarEnTOS(char* nombre)
 	return 0;
 }
 
-char * getTipoTOS(char* nombre)
+int buscarEnTOSID(char* val)
+{
+	int i;
+	for (i=0; i<TOStop; i++)
+    {
+		if(strcmp(TOS[i].nombre, val) == 0)
+		{
+			return 1;
+		}
+	}
+	
+	return 0;
+}
+
+char * getNombreTOS(char* nombre)
 {
 	int i;
 	char * result=(char*)malloc(sizeof(char) * 11);
 	for (i=0; i<TOStop; i++)
     {
-		if(strcmp(TOS[i].nombre, nombre) == 0)
+		if(strcmp(TOS[i].valor, nombre) == 0)
+		{
+			strcpy(result,TOS[i].nombre);
+			return result;
+		}
+	}
+	
+	strcpy(result,"");
+	return result;
+}
+
+char * getTipoTOS(char* nombre)
+{
+	int i;
+	char * result=(char*)malloc(sizeof(char) * 11);
+	char aux[100];
+	strcpy(aux,getNombreTOS(nombre));
+	for (i=0; i<TOStop; i++)
+    {
+		if(strcmp(TOS[i].nombre, aux) == 0)
 		{
 			strcpy(result,TOS[i].tipo);
 			return result;
@@ -993,8 +1051,24 @@ void escribirCabecera()
     FILE *tabla = fopen("TS_assembler.txt","r");
     tablaDeSimbolo datos;
 	FILE* archAS = fopen("test.asm", "w");
+	char valorLeido[100];
+	int i;
+	char aux1[100];
+	char aux2[100];
+	int cantOperaciones = 0;
+	FILE* archPOL = fopen("polaca.txt", "w");
+	for(i = 0; i < cantPolaca; i++){
+		obtenerValor(&polacaInversa, valorLeido, i);
+		if((strcmp(valorLeido, "+") == 0) || (strcmp(valorLeido, "-") == 0) || (strcmp(valorLeido, "*") == 0) || (strcmp(valorLeido, "/") == 0))
+		{
+			cantOperaciones++;
+		}
+		fprintf(archPOL, " %s \n",valorLeido);	
+	}
+	fclose(archPOL);	
 	int len;
 	char tipo[3]="";
+	char * aux;
 	fprintf(archAS, "include macros2.asm \n");
     fprintf(archAS, "include number.asm \n");
    
@@ -1015,7 +1089,9 @@ void escribirCabecera()
 		 len = strlen(datos.valor);
 		 if(len > 0)
 		 {
-			fprintf(archAS, "%s \t %s \t %s  \n", datos.nombre,tipo,datos.valor);
+			aux =modificarNombre(datos.nombre,"-","@");
+			aux = modificarNombre(aux,".","_");
+			fprintf(archAS, "%s \t %s \t %s  \n", aux,tipo,datos.valor);
 		 } else {
 			fprintf(archAS, "%s \t %s \t ? \n", datos.nombre,tipo);
 		 }
@@ -1027,7 +1103,9 @@ void escribirCabecera()
 		 len = strlen(datos.valor);
 		 if(len > 0)
 		 {
-			fprintf(archAS, "%s \t %s \t %s  \n", datos.nombre,tipo,datos.valor);
+			aux =modificarNombre(datos.nombre,"-","@");
+			aux = modificarNombre(aux,".","_");
+			fprintf(archAS, "%s \t %s \t %s  \n", aux,tipo,datos.valor);
 		 } else {
 			fprintf(archAS, "%s \t %s \t ? \n", datos.nombre,tipo);
 		 }
@@ -1039,7 +1117,7 @@ void escribirCabecera()
 		 len = strlen(datos.valor);
 		 if(len > 0)
 		 {
-			fprintf(archAS, "%s \t %s \t \"%s\" , '$', %d dup(?) \n", datos.nombre, tipo, datos.valor, LIM_STR - datos.longitud +1);
+			fprintf(archAS, "%s \t %s \t %s , '$', %d dup(?) \n", datos.nombre, tipo, datos.valor, LIM_STR - datos.longitud +1);
 		 } else {
 			fprintf(archAS, "%s \t %s \t %d dup(?), '$'  \n", datos.nombre, tipo, LIM_STR);
 		 }
@@ -1047,28 +1125,43 @@ void escribirCabecera()
 
       fread(&datos, sizeof(datos), 1, tabla);
    }
+   
+   
+   for(i = 0; i < cantOperaciones; i++)
+   {
+		strcpy(aux1,"@aux");
+		sprintf(aux2, "%d", i);
+		strcat(aux1,aux2);
+		fprintf(archAS, "%s \t %s \t ? \n", aux1,"DD");
+   }
 	
-	fprintf(archAS, ".CODE \n\n");
-	fprintf(archAS, "MOV AX, @DATA \n\n");
-	fprintf(archAS, "MOV DS,AX \n\n");
+	fprintf(archAS, "\n .CODE \n");
+	fprintf(archAS, "Start:  \n");
+	fprintf(archAS, "MOV AX, @DATA \n");
+	fprintf(archAS, "MOV DS,AX \n");
    fclose(archAS);
 
 }
+
 
 	
 void escribirAsembler(){
 	
 	escribirCabecera();
 	FILE* archAS = fopen("test.asm", "a+");
+	
 	char auxAssS[100];
 	int cantAuxAs = 0;
 	int i;
 	Pila pAssembly = crearPila();
 	//fprintf(archAS, "hola");
+	
+	
 	for(i = 0; i < cantPolaca; i++){
 		obtenerValor(&polacaInversa, auxAssS, i);
 		escribirSymbol(archAS,auxAssS,&i,&pAssembly,&cantAuxAs);	
 	}		
+	fprintf(archAS, "end Start \n");
 	fclose(archAS);
 }
 
@@ -1079,9 +1172,7 @@ int convertRef(char * ref){
 void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly,int* cantAuxAs){
 	char auxTest[100];
 	char auxTest2[100];
-	FILE* archPOL = fopen("polaca.txt", "a+");
 	char tipo[11];
-	fprintf(archPOL, " %s \n",valorLeido);
 	
 	if(strcmp(valorLeido, "BI") == 0){
 		(*puntPol)++;
@@ -1127,13 +1218,59 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 	}
 	if(strcmp(valorLeido, "CMP") == 0){
 		desapilar(pAssembly,auxTest2);
+		if((strcmp(auxTest2,"1")==0) || (strcmp(auxTest2,"0")==0))
+		{
+			fprintf(archAS, "FILD %s \n",auxTest2);
+		} else {
+					if(strstr(auxTest2, "@aux") != NULL)
+					{
+					
+					} else {
+						obtenerTipo(&polacaInversa, tipo, auxTest2);
+						if(strcmp(tipo,"ENTERO") == 0)
+						{
+							fprintf(archAS, "FILD %s \n",auxTest2);
+						}
+						if(strcmp(tipo,"REAL") == 0)
+						{
+							fprintf(archAS, "FLD %s \n",auxTest2);
+						}
+					}
+				}
+		
 		desapilar(pAssembly,auxTest);
-		fprintf(archAS, "CMP %s,%s\n",auxTest2,auxTest);
+		if((strcmp(auxTest,"1")==0) || (strcmp(auxTest,"0")==0))
+		{
+			fprintf(archAS, "FILD %s \n",auxTest);
+		}else {
+			if(strstr(auxTest, "@aux") != NULL)
+			{
+			
+			} else {
+			obtenerTipo(&polacaInversa, tipo, auxTest);
+			if(strcmp(tipo,"ENTERO") == 0)
+			{
+				fprintf(archAS, "FILD %s \n",auxTest);
+			}
+			if(strcmp(tipo,"REAL") == 0)
+			{
+				fprintf(archAS, "FLD %s \n",auxTest);
+			}
+		}
+		}
+		
+		fprintf(archAS, "fxch \n");
+		fprintf(archAS, "fcomp \n");
+		fprintf(archAS, "ffree St(0) \n");
+		fprintf(archAS, "fstsw ax \n");
+		fprintf(archAS, "sahf \n");
 		return;
 	}
 	if(strcmp(valorLeido, "=") == 0){
 		desapilar(pAssembly,auxTest2);
 		desapilar(pAssembly,auxTest);
+		
+		printf("AUXTEST %s , AUXTEST2 %s \n", auxTest, auxTest2);
 		fprintf(archAS, "MOV R1,%s\n",auxTest2);
 		fprintf(archAS, "MOV %s,R1\n",auxTest);
 		return;
@@ -1214,6 +1351,11 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 		{
 			fprintf(archAS, "getString %s \n",auxTest);
 		}
+		return;
+	}
+	if(strstr(valorLeido,"_etiq") != NULL && strstr(valorLeido,":") != NULL)
+	{
+		fprintf(archAS, "%s \n",valorLeido);
 		return;
 	}
 	

@@ -122,6 +122,7 @@ void obtenerTipo(Lista *lista, char *t, char * v){
 		}	
 		nodo = nodo->siguiente;
    }
+   strcpy(t,"X");
 }
 
 void mostrarLista(Lista *lista)
@@ -133,4 +134,36 @@ void mostrarLista(Lista *lista)
       nodo = nodo->siguiente;
    }
 
+}
+
+char* modificarNombre(char* n, char *rep, char *with)
+{
+	 char *result; 
+    char *ins;    
+    char *tmp;   
+    int len_rep;  
+    int len_with; 
+    int len_front; 
+    int count;    
+	len_rep = strlen(rep);
+	len_with = strlen(with);
+    ins = n;
+    for (count = 0; tmp = strstr(ins, rep); ++count) {
+        ins = tmp + len_rep;
+    }
+
+    tmp = result = malloc(strlen(n) + (len_with - len_rep) * count + 1);
+
+    if (!result)
+        return NULL;
+
+    while (count--) {
+        ins = strstr(n, rep);
+        len_front = ins - n;
+        tmp = strncpy(tmp, n, len_front) + len_front;
+        tmp = strcpy(tmp, with) + len_with;
+        n += len_front + len_rep; 
+    }
+    strcpy(tmp, n);
+    return result;
 }

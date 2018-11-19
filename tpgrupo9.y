@@ -43,7 +43,7 @@ int buscarEnTOS(char*);
 int buscarEnTOSID(char*);
 char* getTipoTOS(char*);
 char* getTipoTOSID(char*);
-char* getNombreTOS(char*);
+void getNombreTOS(char*, char*);
 void escribirSymbol(FILE* archAS,char * valor, int* puntPol,Pila* pAssembly);
 void escribirAsembler();
 void escribirCabecera();
@@ -212,7 +212,6 @@ decision:
 			desapilar(&pValores,aux);
 			auxInt = atoi(aux); // convierto el lugar a int
 			sprintf(aux,"%d",cantPolaca);
-			printf(aux);
 			strcpy(aux2,"_etiq");
 			strcat(aux2, aux);
 			reemplazarValor(&polacaInversa,aux2,auxInt); // reemplazo el lugar que habia guardado con la posicion proxima donde empieza el bloque
@@ -412,9 +411,12 @@ operacion_between:
 	BETWEEN P_A ID COMA C_A
 		{
 			char tipo[11];
-			strcpy(tipo,getTipoTOSID($<str_val>3));
-			insertarPolacaTipo(&polacaInversa, $<str_val>3, tipo);
-			strcpy(auxBetween,$<str_val>3);
+			char aux[100];
+			strcpy(aux,"_@");
+			strcat(aux,$<str_val>3);
+			strcpy(tipo,getTipoTOSID(aux));
+			insertarPolacaTipo(&polacaInversa, aux, tipo);
+			strcpy(auxBetween,aux);
 			
 		}
 	expresion
@@ -489,7 +491,10 @@ operacion_between:
 operacion_inlist: 
 	INLIST P_A ID 
 	{
-		apilar(&pValores, $<str_val>3);
+		char aux[100];
+		strcpy(aux,"_@");
+		strcat(aux,$<str_val>3);
+		apilar(&pValores, aux);
 		contInlist=0;
 	}
 	COMA C_A lista_expresiones C_C P_C 
@@ -575,9 +580,11 @@ asignacion:
 		{
 			//insertarPolaca(&polacaInversa, $<str_val>$);
 			char tipo[11];
-			strcpy(tipo,getTipoTOSID($<str_val>1));
-			printf("TIPO %s , NOMBRE %s \n",tipo,$<str_val>1);
-			insertarPolacaTipo(&polacaInversa, $<str_val>1, tipo);
+			char aux[100];
+			strcpy(aux,"_@");
+			strcat(aux,$<str_val>1);
+			strcpy(tipo,getTipoTOSID(aux));
+			insertarPolacaTipo(&polacaInversa, aux, tipo);
 		} 
 	ASIG 
 		{
@@ -595,7 +602,6 @@ asignable:
 		}
 	| CADENA
 		{
-			printf("STR:%s \n", $<str_val>1);
 			char aux[100];
 			insertar_STRING_en_Tabla($<str_val>1,aux);
 			insertarPolaca(&polacaInversa, aux);
@@ -616,8 +622,11 @@ salida:
 		{
 			printf("WRITE OK \n");
 			char tipo[11];
-			strcpy(tipo,getTipoTOSID($<str_val>2));
-			insertarPolacaTipo(&polacaInversa, $<str_val>2, tipo);
+			char aux[100];
+			strcpy(aux,"_@");
+			strcat(aux,$<str_val>2);
+			strcpy(tipo,getTipoTOSID(aux));
+			insertarPolacaTipo(&polacaInversa, aux, tipo);
 			//insertarPolaca(&polacaInversa, $<str_val>2);
 			insertarPolaca(&polacaInversa, "WRITE");
 		};
@@ -627,8 +636,11 @@ entrada:
 		{
 			printf("entrada OK\n");
 			char tipo[11];
-			strcpy(tipo,getTipoTOSID($<str_val>2));
-			insertarPolacaTipo(&polacaInversa, $<str_val>2, tipo);
+			char aux[100];
+			strcpy(aux,"_@");
+			strcat(aux,$<str_val>2);
+			strcpy(tipo,getTipoTOSID(aux));
+			insertarPolacaTipo(&polacaInversa, aux, tipo);
 			//insertarPolaca(&polacaInversa, $<str_val>2);
 			insertarPolaca(&polacaInversa, "READ");
 		};
@@ -708,8 +720,11 @@ factor:
 		{
 			printf("ID en FACTOR es: %s \n", $<str_val>$);
 			char tipo[11];
-			strcpy(tipo,getTipoTOSID($<str_val>$));
-			insertarPolacaTipo(&polacaInversa, $<str_val>$, tipo);
+			char aux[100];
+			strcpy(aux,"_@");
+			strcat(aux,$<str_val>$);
+			strcpy(tipo,getTipoTOSID(aux));
+			insertarPolacaTipo(&polacaInversa, aux, tipo);
 			//insertarPolaca(&polacaInversa, $<str_val>$);
 		}
 	| ENTERO 
@@ -764,10 +779,11 @@ void mostrarError(char *mensaje) {
 void insertar_ID_en_Tabla(char* token)
 {
 	char aux[100];
+	strcpy(aux,"_@");
 	strcat(aux, token);
-	if(!buscarEnTOSID(token))
+	if(!buscarEnTOSID(aux))
 	{
-		strcpy(TOS[TOStop].nombre, token);
+		strcpy(TOS[TOStop].nombre, aux);
 		strcpy(TOS[TOStop].tipo,"ID" );
 		TOStop++;
 	}
@@ -778,6 +794,7 @@ void insertar_STRING_en_Tabla(char* token, char* sal)
 	char aux[100];
 	char num[100];
 	char * salida;
+	char aux2[100];
 	if(!buscarEnTOS(token))
 	{
 		strcpy(aux,"_assemblerconst");
@@ -791,7 +808,8 @@ void insertar_STRING_en_Tabla(char* token, char* sal)
 		TOStop++;
 		strcpy(sal, aux);
 	} else {
-		strcpy(sal,getNombreTOS(token));
+		getNombreTOS(token,aux2);
+		strcpy(sal,aux2);
 	}
 }
 
@@ -802,6 +820,7 @@ void insertar_ENTERO_en_Tabla(int token, char *sal)
 	sprintf(aux2, "%d", token);
 	strcat(aux, aux2);
 	char num[100];
+	char aux3[100];
 	if(!buscarEnTOS(aux2))
 	{
 		strcpy(aux,"_assemblerconst");
@@ -814,7 +833,9 @@ void insertar_ENTERO_en_Tabla(int token, char *sal)
 		TOStop++;
 		strcpy(sal, aux);
 	}else {
-		strcpy(sal,getNombreTOS(aux2));
+		getNombreTOS(aux2,aux3);
+		strcpy(sal,aux3);
+		
 	}
 }
 
@@ -829,12 +850,15 @@ void asignarTipo(int tipo)
 {
 	int i;
 	int j;
+	char aux[100];
+	
 	for (i=0; i<indexTokens; i++)
     {
 		for(j=0; j<TOStop; j++)
 		{
-
-			if(strcmp(TOS[j].nombre, tokens[i]) == 0)
+			strcpy(aux,"_@");
+			strcat(aux,tokens[i]);
+			if(strcmp(TOS[j].nombre, aux) == 0)
 			{
 				switch (tipo)
 				{
@@ -863,7 +887,7 @@ void insertar_REAL_en_Tabla(double token, char * sal)
 	char aux2[100];
 	sprintf(aux2, "%lf", token);
 	char num[100];
-	
+	char aux3[100];
 	if(!buscarEnTOS(aux2))
 	{
 		strcpy(aux,"_assemblerconst");
@@ -876,7 +900,8 @@ void insertar_REAL_en_Tabla(double token, char * sal)
 		TOStop++;
 		strcpy(sal, aux);
 	} else {
-		strcpy(sal,getNombreTOS(aux2));
+		getNombreTOS(aux2,aux3);
+		strcpy(sal,aux3);
 	}
 }
 
@@ -941,21 +966,20 @@ int buscarEnTOSID(char* val)
 	return 0;
 }
 
-char * getNombreTOS(char* nombre)
+void getNombreTOS(char* nombre, char*aux)
 {
 	int i;
-	char * result=(char*)malloc(sizeof(char) * 11);
 	for (i=0; i<TOStop; i++)
     {
 		if(strcmp(TOS[i].valor, nombre) == 0)
 		{
-			strcpy(result,TOS[i].nombre);
-			return result;
+			strcpy(aux,TOS[i].nombre);
+			return;
 		}
 	}
 	
-	strcpy(result,"");
-	return result;
+	strcpy(aux,"");
+	return;
 }
 
 char * getTipoTOS(char* nombre)
@@ -963,7 +987,9 @@ char * getTipoTOS(char* nombre)
 	int i;
 	char * result=(char*)malloc(sizeof(char) * 11);
 	char aux[100];
-	strcpy(aux,getNombreTOS(nombre));
+	char aux2[100];
+	getNombreTOS(nombre,aux2);
+	strcpy(aux,aux2);
 	for (i=0; i<TOStop; i++)
     {
 		if(strcmp(TOS[i].nombre, aux) == 0)
@@ -1100,7 +1126,6 @@ void escribirCabecera()
 	
 	for (i=0; i<TOStop; i++)
     {
-
       if (strcmp(TOS[i].tipo,"ENTERO")==0)
       {
          strcpy(tipo,"DD");
@@ -1326,7 +1351,7 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 		}
 		}
 		
-		fprintf(archAS, "fxch \n");
+		//fprintf(archAS, "fxch \n");
 		fprintf(archAS, "fcomp \n");
 		fprintf(archAS, "ffree St(0) \n");
 		fprintf(archAS, "fstsw ax \n");
@@ -1506,7 +1531,6 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 	if(strcmp(valorLeido, "WRITE") == 0){
 		desapilar(pAssembly,auxTest);
 		obtenerTipo(&polacaInversa, tipo, auxTest);
-		printf("TIPO %s , NOMBRE %s \n",tipo,auxTest);
 		if(strcmp(tipo,"ENTERO") == 0)
 		{
 			fprintf(archAS, "DisplayInteger %s \n",auxTest);

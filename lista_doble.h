@@ -5,7 +5,6 @@
 
 typedef struct _nodo {
    char *valor;
-   char *nombre;
    int indice;
    char *tipo;
    struct _nodo *siguiente;

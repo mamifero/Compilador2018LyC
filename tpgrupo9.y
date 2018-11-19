@@ -1270,7 +1270,16 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 		desapilar(pAssembly,auxTest2);
 		desapilar(pAssembly,auxTest);
 		
-		printf("AUXTEST %s , AUXTEST2 %s \n", auxTest, auxTest2);
+		obtenerTipo(&polacaInversa, tipo, auxTest);
+		if(strcmp(tipo,"ENTERO") == 0)
+		{
+			fprintf(archAS, "DisplayInteger %s \n",auxTest);
+		}
+		if(strcmp(tipo,"REAL") == 0)
+		{
+			fprintf(archAS, "DisplayFloat %s,6  \n",auxTest);
+		}
+		
 		fprintf(archAS, "MOV R1,%s\n",auxTest2);
 		fprintf(archAS, "MOV %s,R1\n",auxTest);
 		return;

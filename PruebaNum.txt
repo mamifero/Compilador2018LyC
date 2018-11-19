@@ -1,0 +1,13 @@
+DECVAR
+a,b,c:INTEGER
+ENDDEC
+a = 0
+WRITE "Ingrese el primer valor"
+READ a
+WRITE "Ingrese el segundo valor"
+READ b
+c = a+b
+WRITE "El resultado es"
+WRITE c
+
+-/ un comentario -/otro comentario adentro/- el mismo comentario/-

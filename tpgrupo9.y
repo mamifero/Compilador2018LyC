@@ -1067,9 +1067,9 @@ char* getComparadorAssemblerI(char* cadena)
 
 void escribirCabecera()
 {
-    FILE *tabla = fopen("TS_assembler.txt","r");
+    //FILE *tabla = fopen("TS_assembler.txt","r");
     tablaDeSimbolo datos;
-	FILE* archAS = fopen("test.asm", "w");
+	FILE* archAS = fopen("Final.asm", "w");
 	char valorLeido[100];
 	int i;
 	char aux1[100];
@@ -1100,51 +1100,51 @@ void escribirCabecera()
 
 	fprintf(archAS, ".DATA \n\n");
 	fprintf(archAS, "MAXTEXTSIZE EQU %s\n", lim);
-	fread(&datos, sizeof(datos), 1, tabla);
-
-    while (feof(tabla) == 0)
+	//fread(&datos, sizeof(datos), 1, tabla);
+	
+	for (i=0; i<TOStop; i++)
     {
-      if (strcmp(datos.tipo,"ENTERO")==0)
+
+      if (strcmp(TOS[i].tipo,"ENTERO")==0)
       {
          strcpy(tipo,"DD");
-		 len = strlen(datos.valor);
+		 len = strlen(TOS[i].valor);
 		 if(len > 0)
 		 {
-			aux =modificarNombre(datos.nombre,"-","@");
+			aux =modificarNombre(TOS[i].nombre,"-","@");
 			aux = modificarNombre(aux,".","_");
-			fprintf(archAS, "%s \t %s \t %s  \n", aux,tipo,datos.valor);
+			fprintf(archAS, "%s \t %s \t %s  \n", aux,tipo,TOS[i].valor);
 		 } else {
-			fprintf(archAS, "%s \t %s \t ? \n", datos.nombre,tipo);
+			fprintf(archAS, "%s \t %s \t ? \n", TOS[i].nombre,tipo);
 		 }
       }
 
-      if (strcmp(datos.tipo,"REAL")==0)
+      if (strcmp(TOS[i].tipo,"REAL")==0)
       {
          strcpy(tipo,"DD");
-		 len = strlen(datos.valor);
+		 len = strlen(TOS[i].valor);
 		 if(len > 0)
 		 {
-			aux =modificarNombre(datos.nombre,"-","@");
+			aux =modificarNombre(TOS[i].nombre,"-","@");
 			aux = modificarNombre(aux,".","_");
-			fprintf(archAS, "%s \t %s \t %s  \n", aux,tipo,datos.valor);
+			fprintf(archAS, "%s \t %s \t %s  \n", aux,tipo,TOS[i].valor);
 		 } else {
-			fprintf(archAS, "%s \t %s \t ? \n", datos.nombre,tipo);
+			fprintf(archAS, "%s \t %s \t ? \n", TOS[i].nombre,tipo);
 		 }
-      }
-      
-      if ((strcmp(datos.tipo,"CADENA")==0))
+      }   
+      if ((strcmp(TOS[i].tipo,"CADENA")==0))
       {
+
          strcpy(tipo,"DB");
-		 len = strlen(datos.valor);
+		 len = strlen(TOS[i].valor);
 		 if(len > 0)
 		 {
-			fprintf(archAS, "%s \t %s \t %s , '$', %d dup(?) \n", datos.nombre, tipo, datos.valor, LIM_STR - datos.longitud +1);
+			fprintf(archAS, "%s \t %s \t %s , '$', %d dup(?) \n", TOS[i].nombre, tipo, TOS[i].valor, LIM_STR - TOS[i].longitud +1);
 		 } else {
-			fprintf(archAS, "%s \t %s \t %d dup(?), '$'  \n", datos.nombre, tipo, LIM_STR);
+			fprintf(archAS, "%s \t %s \t %d dup(?), '$'  \n", TOS[i].nombre, tipo, LIM_STR);
 		 }
       }
-
-      fread(&datos, sizeof(datos), 1, tabla);
+	  
    }
    
    //variables para operaciones
@@ -1197,6 +1197,7 @@ void escribirCabecera()
 	fprintf(archAS, "Start:  \n");
 	fprintf(archAS, "MOV AX, @DATA \n");
 	fprintf(archAS, "MOV DS,AX \n");
+	fprintf(archAS, "MOV ES,AX \n");
    fclose(archAS);
 
 }
@@ -1206,7 +1207,7 @@ void escribirCabecera()
 void escribirAsembler(){
 	
 	escribirCabecera();
-	FILE* archAS = fopen("test.asm", "a+");
+	FILE* archAS = fopen("Final.asm", "a+");
 	
 	char auxAssS[100];
 	int i;

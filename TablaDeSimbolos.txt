@@ -1,28 +1,7 @@
 
 ------------------------------ TABLA DE  SIMBOLOS ------------------------------
-Nombre: a  | Tipo: REAL   | Valor:  | Limite: 2147483647 | Longitud:  
-Nombre: b  | Tipo: REAL   | Valor:  | Limite: 2147483647 | Longitud:  
-Nombre: c  | Tipo: ENTERO   | Valor:  | Limite: 32768 | Longitud:  
-Nombre: d  | Tipo: REAL   | Valor:  | Limite: 2147483647 | Longitud:  
-Nombre: h  | Tipo: REAL   | Valor:  | Limite: 2147483647 | Longitud:  
-Nombre: i  | Tipo: REAL   | Valor:  | Limite: 2147483647 | Longitud:  
-Nombre: j  | Tipo: REAL   | Valor:  | Limite: 2147483647 | Longitud:  
-Nombre: e  | Tipo: ENTERO   | Valor:  | Limite: 32768 | Longitud:  
-Nombre: f  | Tipo: ENTERO   | Valor:  | Limite: 32768 | Longitud:  
 Nombre: g  | Tipo: CADENA   | Valor:  | Limite: 30 | Longitud:  
-Nombre: _assemblerconst1  | Tipo: ENTERO   | Valor: 9 | Limite: 32768 | Longitud:  
-Nombre: _assemblerconst2  | Tipo: REAL   | Valor: 57.100000 | Limite: 2147483647 | Longitud:  
-Nombre: _assemblerconst3  | Tipo: REAL   | Valor: 9.000000 | Limite: 2147483647 | Longitud:  
-Nombre: _assemblerconst4  | Tipo: REAL   | Valor: 0.900000 | Limite: 2147483647 | Longitud:  
-Nombre: _assemblerconst5  | Tipo: ENTERO   | Valor: -9 | Limite: 32768 | Longitud:  
-Nombre: _assemblerconst6  | Tipo: REAL   | Valor: -429.100000 | Limite: 2147483647 | Longitud:  
-Nombre: _assemblerconst7  | Tipo: REAL   | Valor: -0.900000 | Limite: 2147483647 | Longitud:  
-Nombre: _assemblerconst8  | Tipo: ENTERO   | Valor: 2 | Limite: 32768 | Longitud:  
-Nombre: _assemblerconst9  | Tipo: REAL   | Valor: 9.600000 | Limite: 2147483647 | Longitud:  
-Nombre: _assemblerconst10  | Tipo: CADENA   | Valor: "Esta en la lista" | Limite: 30 | Longitud: 18 
-Nombre: _assemblerconst11  | Tipo: CADENA   | Valor: "un else" | Limite: 30 | Longitud: 9 
-Nombre: _assemblerconst12  | Tipo: CADENA   | Valor: "" | Limite: 30 | Longitud: 2 
-Nombre: _assemblerconst13  | Tipo: CADENA   | Valor: "soy una cadena@" | Limite: 30 | Longitud: 17 
-Nombre: _assemblerconst14  | Tipo: CADENA   | Valor: "soy una cade%na para salida" | Limite: 30 | Longitud: 29 
+Nombre: _assemblerconst1  | Tipo: CADENA   | Valor: "HOLA MUNDO" | Limite: 30 | Longitud: 12 
+Nombre: _assemblerconst2  | Tipo: CADENA   | Valor: "soy una cadena@" | Limite: 30 | Longitud: 17 
 
 ------------------------------ TABLA DE  SIMBOLOS ------------------------------

@@ -1404,7 +1404,7 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 			obtenerTipo(&polacaInversa, tipo, auxTest2);
 			if(strcmp(tipo,"REAL") == 0)
 			{
-				fprintf(archAS, "FLD %s \n",auxTest);
+				fprintf(archAS, "FILD %s \n",auxTest);
 				fprintf(archAS, "FLD %s \n",auxTest2);
 				fprintf(archAS, "FADD \n");
 				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
@@ -1441,7 +1441,7 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 			obtenerTipo(&polacaInversa, tipo, auxTest2);
 			if(strcmp(tipo,"REAL") == 0)
 			{
-				fprintf(archAS, "FLD %s \n",auxTest);
+				fprintf(archAS, "FILD %s \n",auxTest);
 				fprintf(archAS, "FLD %s \n",auxTest2);
 				fprintf(archAS, "FSUB \n");
 				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
@@ -1459,6 +1459,7 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 	if(strcmp(valorLeido, "*") == 0){
 		desapilar(pAssembly,auxTest2);
 		desapilar(pAssembly,auxTest);
+		obtenerTipo(&polacaInversa, tipo, auxTest);
 		if(strcmp(tipo,"REAL") == 0)
 		{
 			fprintf(archAS, "FLD %s \n",auxTest);
@@ -1477,7 +1478,7 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 			obtenerTipo(&polacaInversa, tipo, auxTest2);
 			if(strcmp(tipo,"REAL") == 0)
 			{
-				fprintf(archAS, "FLD %s \n",auxTest);
+				fprintf(archAS, "FILD %s \n",auxTest);
 				fprintf(archAS, "FLD %s \n",auxTest2);
 				fprintf(archAS, "FMUL \n");
 				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));
@@ -1513,7 +1514,7 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 			obtenerTipo(&polacaInversa, tipo, auxTest2);
 			if(strcmp(tipo,"REAL") == 0)
 			{
-				fprintf(archAS, "FLD %s \n",auxTest);
+				fprintf(archAS, "FILD %s \n",auxTest);
 				fprintf(archAS, "FLD %s \n",auxTest2);
 				fprintf(archAS, "FDIV \n");
 				fprintf(archAS, "FSTP @aux%d \n",(cantAux++));

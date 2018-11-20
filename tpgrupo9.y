@@ -1314,7 +1314,7 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 		} else {
 					if(strstr(auxTest2, "@aux") != NULL)
 					{
-					
+						fprintf(archAS, "FLD %s \n",auxTest2);
 					} else {
 						obtenerTipo(&polacaInversa, tipo, auxTest2);
 						if(strcmp(tipo,"ENTERO") == 0)
@@ -1337,7 +1337,7 @@ void escribirSymbol(FILE* archAS,char * valorLeido, int* puntPol,Pila* pAssembly
 		}else {
 			if(strstr(auxTest, "@aux") != NULL)
 			{
-			
+				fprintf(archAS, "FLD %s \n",auxTest);
 			} else {
 			obtenerTipo(&polacaInversa, tipo, auxTest);
 			if(strcmp(tipo,"ENTERO") == 0)

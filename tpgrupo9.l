@@ -5,7 +5,7 @@
 #include <string.h>
 #include "y.tab.h"
 
-void mostrarError(char *);
+
 int validarLongitud(int);
 
 FILE  *yyin;

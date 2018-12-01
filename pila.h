@@ -19,5 +19,6 @@ typedef struct _pila {
 void apilar(Pila *p, char *v);
 void desapilar(Pila *p, char *v);
 void mostrarPila(Pila *p);
+int buscarEnPila(Pila *p, char *v);
 
 Pila crearPila();

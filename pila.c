@@ -38,6 +38,24 @@ void desapilar(Pila *pila, char *v){
 
 }
 
+int buscarEnPila(Pila *pila, char *v){
+	if(pila->tope == NULL){
+		return 0;
+	}
+	pNodoPila aux;
+	aux = pila->tope;
+	while(aux != NULL)
+	{
+		if (strcmp(v, aux->valor) == 0)
+		{
+			return 1;
+		}
+		aux = aux->anterior;
+	}
+	return 0;
+
+}
+
 void mostrarPila(Pila *pila)
 {
    pNodoPila nodo = pila->tope;

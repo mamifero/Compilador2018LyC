@@ -38,6 +38,8 @@ char tokens[100][100];
 int indexTokens = 0; 	
 Lista polacaInversa;
 Pila pValores;
+Pila idsDeclarados;
+Pila asignaciones;
 	
 int buscarEnTOS(char*);
 int buscarEnTOSID(char*);
@@ -53,6 +55,7 @@ void insertar_STRING_en_Tabla(char*,char*);
 void insertar_ENTERO_en_Tabla(int,char*);
 void insertar_REAL_en_Tabla(double,char*);
 void mostrarTOS();
+void mostrarError(char *);
 
 void guardarTokens(char*);
 void asignarTipo(int);
@@ -156,6 +159,15 @@ declaracion:
 lista_ids: 
 	lista_ids COMA ID  
 		{
+			if(buscarEnPila(&idsDeclarados,$<str_val>$) == 0)
+			{
+				apilar(&idsDeclarados,$<str_val>$);
+			} else 
+			{
+				char msj[100];
+				sprintf(msj,"El ID %s ya fue declarado.",$<str_val>$);
+				mostrarError(msj);
+			}
 			printf("ID en DECVAR es: %s\n", $<str_val>$);
 			insertar_ID_en_Tabla($<str_val>$);
 			guardarTokens($<str_val>$);
@@ -163,6 +175,15 @@ lista_ids:
 
     | ID 
 	    {
+			if(buscarEnPila(&idsDeclarados,$<str_val>$) == 0)
+			{
+				apilar(&idsDeclarados,$<str_val>$);
+			} else 
+			{
+				char msj[100];
+				sprintf(msj,"El ID %s ya fue declarado.",$<str_val>$);
+				mostrarError(msj);
+			}
 	    	printf("ID en DECVAR es: %s\n", $<str_val>$);
 	    	insertar_ID_en_Tabla($<str_val>$);
 	    	guardarTokens($<str_val>$);
@@ -412,6 +433,13 @@ operacion_between:
 		{
 			char tipo[11];
 			char aux[100];
+			
+			if(buscarEnPila(&idsDeclarados,$<str_val>3) == 0)
+			{
+				char msj[100];
+				sprintf(msj,"El ID %s se utiliza aqui pero no fue declarado.",$<str_val>3);
+				mostrarError(msj);
+			}
 			strcpy(aux,"_@");
 			strcat(aux,$<str_val>3);
 			strcpy(tipo,getTipoTOSID(aux));
@@ -491,6 +519,12 @@ operacion_between:
 operacion_inlist: 
 	INLIST P_A ID 
 	{
+		if(buscarEnPila(&idsDeclarados,$<str_val>3) == 0)
+		{
+			char msj[100];
+			sprintf(msj,"El ID %s se utiliza aqui pero no fue declarado.",$<str_val>3);
+			mostrarError(msj);
+		}
 		char aux[100];
 		strcpy(aux,"_@");
 		strcat(aux,$<str_val>3);
@@ -579,6 +613,13 @@ asignacion:
 	ID
 		{
 			//insertarPolaca(&polacaInversa, $<str_val>$);
+			if(buscarEnPila(&idsDeclarados,$<str_val>1) == 0)
+			{
+				char msj[100];
+				sprintf(msj,"El ID %s se utiliza aqui pero no fue declarado.",$<str_val>1);
+				mostrarError(msj);
+			}
+			apilar(&asignaciones,$<str_val>1);
 			char tipo[11];
 			char aux[100];
 			strcpy(aux,"_@");
@@ -602,6 +643,19 @@ asignable:
 		}
 	| CADENA
 		{
+			char auxId[100];
+			char aux2[100];
+			desapilar(&asignaciones,auxId);
+			char tipo[11];
+			strcpy(aux2,"_@");
+			strcat(aux2,auxId);
+			strcpy(tipo,getTipoTOSID(aux2));
+			if(strcmp(tipo, "CADENA") != 0)
+			{
+				char msj[100];
+				sprintf(msj, "Error en la asignacion. El Id %s es de tipo %s y se le quiere asignar una CADENA",auxId,tipo);
+				mostrarError(msj);
+			}
 			char aux[100];
 			insertar_STRING_en_Tabla($<str_val>1,aux);
 			insertarPolaca(&polacaInversa, aux);
@@ -621,6 +675,12 @@ salida:
 	| WRITE ID
 		{
 			printf("WRITE OK \n");
+			if(buscarEnPila(&idsDeclarados,$<str_val>2) == 0)
+			{
+				char msj[100];
+				sprintf(msj,"El ID %s se utiliza aqui pero no fue declarado.",$<str_val>2);
+				mostrarError(msj);
+			}
 			char tipo[11];
 			char aux[100];
 			strcpy(aux,"_@");
@@ -634,6 +694,12 @@ salida:
 entrada: 
 	READ ID 
 		{
+			if(buscarEnPila(&idsDeclarados,$<str_val>2) == 0)
+			{
+				char msj[100];
+				sprintf(msj,"El ID %s se utiliza aqui pero no fue declarado.",$<str_val>2);
+				mostrarError(msj);
+			}
 			printf("entrada OK\n");
 			char tipo[11];
 			char aux[100];
@@ -718,8 +784,34 @@ termino:
 factor: 
 	ID
 		{
-			printf("ID en FACTOR es: %s \n", $<str_val>$);
+			if(buscarEnPila(&idsDeclarados,$<str_val>$) == 0)
+			{
+				char msj[100];
+				sprintf(msj,"El ID %s se utiliza aqui pero no fue declarado.",$<str_val>$);
+				mostrarError(msj);
+			}
+			char auxId[100];
+			char aux2[100];
+			desapilar(&asignaciones,auxId);
 			char tipo[11];
+			strcpy(aux2,"_@");
+			strcat(aux2,auxId);
+			strcpy(tipo,getTipoTOSID(aux2));	
+			char tipo2[11];
+			strcpy(aux2,"_@");
+			strcat(aux2,$<str_val>$);
+			strcpy(tipo2,getTipoTOSID(aux2));
+			if(strcmp(tipo, tipo2) != 0)
+			{
+				char msj[100];
+				sprintf(msj, "Error en la asignacion. El Id %s es de tipo %s y se le quiere asignar un Id de tipo %s ",auxId,tipo, tipo2);
+				mostrarError(msj);
+			}else {
+				apilar(&asignaciones,auxId);
+			}
+			
+			
+			printf("ID en FACTOR es: %s \n", $<str_val>$);
 			char aux[100];
 			strcpy(aux,"_@");
 			strcat(aux,$<str_val>$);
@@ -729,6 +821,22 @@ factor:
 		}
 	| ENTERO 
 		{
+			char auxId[100];
+			char aux2[100];
+			desapilar(&asignaciones,auxId);
+			char tipo[11];
+			strcpy(aux2,"_@");
+			strcat(aux2,auxId);
+			strcpy(tipo,getTipoTOSID(aux2));	
+			if(strcmp(tipo, "ENTERO") != 0)
+			{
+				char msj[100];
+				sprintf(msj, "Error en la asignacion. El Id %s es de tipo %s y se le quiere asignar un valor de tipo ENTERO",auxId,tipo);
+				mostrarError(msj);
+			} else {
+				apilar(&asignaciones,auxId);
+			}
+			
 			printf("ENTERO en FACTOR es: %d \n", $<int_val>$);
 			char aux[100];
 			insertar_ENTERO_en_Tabla($<int_val>$,aux);
@@ -737,6 +845,23 @@ factor:
 		}
 	| REAL 
 		{
+		
+			char auxId[100];
+			char aux2[100];
+			desapilar(&asignaciones,auxId);
+			char tipo[11];
+			strcpy(aux2,"_@");
+			strcat(aux2,auxId);
+			strcpy(tipo,getTipoTOSID(aux2));	
+			if(strcmp(tipo, "REAL") != 0)
+			{
+				char msj[100];
+				sprintf(msj, "Error en la asignacion. El Id %s es de tipo %s y se le quiere asignar un valor de tipo REAL ",auxId,tipo);
+				mostrarError(msj);
+			}else {
+				apilar(&asignaciones,auxId);
+			}
+			
 			printf("REAL en FACTOR es: %f \n", $<float_val>$);
 			char aux[100];
 			insertar_REAL_en_Tabla($<float_val>$,aux);
@@ -746,10 +871,19 @@ factor:
 	|P_A expresion P_C;
 
 %%
+
+void mostrarError(char *mensaje) {
+  printf("ERROR!!!: %s\n", mensaje);
+  exit(1);
+}
+
+
 int main(int argc,char *argv[])
 {
 	polacaInversa = crearLista();
 	pValores = crearPila();
+	idsDeclarados = crearPila();
+	asignaciones = crearPila();
 
   if ((yyin = fopen(argv[1], "rt")) == NULL)
   {
@@ -771,10 +905,7 @@ int yyerror(void)
    exit (1);
      }
 
-void mostrarError(char *mensaje) {
-  printf("ERROR!!!: %s\n", mensaje);
-  exit(1);
-}
+
 
 void insertar_ID_en_Tabla(char* token)
 {
@@ -1006,11 +1137,14 @@ char * getTipoTOS(char* nombre)
 char * getTipoTOSID(char* nombre)
 {
 	int i;
+	printf("NOMBRE %s \n", nombre);
 	char * result=(char*)malloc(sizeof(char) * 11);
 	for (i=0; i<TOStop; i++)
     {
+		printf("NOMBRE 2 %s \n", TOS[i].nombre);
 		if(strcmp(TOS[i].nombre, nombre) == 0)
 		{
+			printf("TIPO %s \n", TOS[i].tipo);
 			strcpy(result,TOS[i].tipo);
 			return result;
 		}
@@ -1099,7 +1233,7 @@ void escribirCabecera()
 	char lim[100];
 	int cantOperaciones = 0;
 	sprintf(lim,"%d",LIM_STR);
-	FILE* archPOL = fopen("polaca.txt", "w");
+	FILE* archPOL = fopen("intermedia.txt", "w");
 	for(i = 0; i < cantPolaca; i++){
 		obtenerValor(&polacaInversa, valorLeido, i);
 		if((strcmp(valorLeido, "+") == 0) || (strcmp(valorLeido, "-") == 0) || (strcmp(valorLeido, "*") == 0) || (strcmp(valorLeido, "/") == 0))
@@ -1228,7 +1362,7 @@ void escribirCabecera()
 void escribirAsembler(){
 	
 	escribirCabecera();
-	FILE* archAS = fopen("assembler/Final.asm", "a+");
+	FILE* archAS = fopen("Final.asm", "a+");
 	
 	char auxAssS[100];
 	int i;

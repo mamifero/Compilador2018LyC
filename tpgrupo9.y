@@ -1245,7 +1245,7 @@ void escribirCabecera()
 {
     //FILE *tabla = fopen("TS_assembler.txt","r");
     tablaDeSimbolo datos;
-	FILE* archAS = fopen("assembler/Final.asm", "w");
+	FILE* archAS = fopen("Final.asm", "w");
 	char valorLeido[100];
 	int i;
 	char aux1[100];

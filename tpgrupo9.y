@@ -340,11 +340,15 @@ condicion_multiple:
 	condicion_simple {
 		char aux[100];
 		char aux2[100];
+		char aux3[100];
 		int auxInt;
 		desapilar(&pValores,aux); //recupero el simbolo de comparacion
 		insertarPolaca(&polacaInversa, getComparadorAssembler(aux));
 		sprintf(aux,"%d",cantPolaca+2); 
-		insertarPolaca(&polacaInversa, aux); // si es verdadero esquivo el salto que me lleva al fin del bloque
+		strcpy(aux2,"_etiq");
+		strcat(aux2,aux);
+		strcpy(aux3,aux2);
+		insertarPolaca(&polacaInversa, aux2); // si es verdadero esquivo el salto que me lleva al fin del bloque
 		desapilar(&pValores,aux);// recupero el lugar que guarde antes
 		auxInt = atoi(aux); // convierto el lugar a int
 		sprintf(aux,"%d",cantPolaca) ;
@@ -355,8 +359,11 @@ condicion_multiple:
 		insertarPolaca(&polacaInversa,aux2);
 		insertarPolaca(&polacaInversa, "BI");
 		insertarPolaca(&polacaInversa, ""); // dejo el lugar para el salto
+		
 		sprintf(aux,"%d",cantPolaca-1);
 		apilar(&pValores, aux); // guardo la posicion
+		strcat(aux3,":");
+		insertarPolaca(&polacaInversa,aux3);
 	}
 	| condicion_simple OR
 	{
@@ -371,20 +378,24 @@ condicion_multiple:
 	{
 		char aux[100];
 		char aux2[100];
+		char aux3[100];
 		int auxInt;
 		desapilar(&pValores,aux); //recupero el simbolo de comparacion
 		insertarPolaca(&polacaInversa, getComparadorAssemblerI(aux));
-		insertarPolaca(&polacaInversa, ""); // dejo el lugar para el salto
+		//insertarPolaca(&polacaInversa, ""); // dejo el lugar para el salto
 		desapilar(&pValores,aux);// recupero el lugar que guarde antes
 		auxInt = atoi(aux); // convierto el lugar a int
 		sprintf(aux,"%d",cantPolaca) ;
 		strcpy(aux2,"_etiq");
 		strcat(aux2,aux);
+		strcpy(aux3, aux2);
 		reemplazarValor(&polacaInversa,aux2,auxInt); // reemplazo el lugar que habia guardado con la posicion proxima donde empieza el bloque
 		strcat(aux2,":");
 		insertarPolaca(&polacaInversa,aux2);
 		sprintf(aux,"%d",cantPolaca-1);
 		apilar(&pValores, aux); // guardo la posicion
+		strcat(aux3,":");
+		insertarPolaca(&polacaInversa,aux3);
 	}	
 	| NOT condicion_simple
 	{
@@ -784,32 +795,37 @@ termino:
 factor: 
 	ID
 		{
+			printf(" ID %s \n",$<str_val>$);
 			if(buscarEnPila(&idsDeclarados,$<str_val>$) == 0)
 			{
 				char msj[100];
 				sprintf(msj,"El ID %s se utiliza aqui pero no fue declarado.",$<str_val>$);
 				mostrarError(msj);
 			}
+			char tipo[11];
 			char auxId[100];
 			char aux2[100];
 			desapilar(&asignaciones,auxId);
-			char tipo[11];
-			strcpy(aux2,"_@");
-			strcat(aux2,auxId);
-			strcpy(tipo,getTipoTOSID(aux2));	
-			char tipo2[11];
-			strcpy(aux2,"_@");
-			strcat(aux2,$<str_val>$);
-			strcpy(tipo2,getTipoTOSID(aux2));
-			if(strcmp(tipo, tipo2) != 0)
+			if(strcmp(auxId,"") != 0)
 			{
-				char msj[100];
-				sprintf(msj, "Error en la asignacion. El Id %s es de tipo %s y se le quiere asignar un Id de tipo %s ",auxId,tipo, tipo2);
-				mostrarError(msj);
-			}else {
-				apilar(&asignaciones,auxId);
+				printf(" ID2 %s \n",auxId);
+				
+				strcpy(aux2,"_@");
+				strcat(aux2,auxId);
+				strcpy(tipo,getTipoTOSID(aux2));	
+				char tipo2[11];
+				strcpy(aux2,"_@");
+				strcat(aux2,$<str_val>$);
+				strcpy(tipo2,getTipoTOSID(aux2));
+				if(strcmp(tipo, tipo2) != 0)
+				{
+					char msj[100];
+					sprintf(msj, "Error en la asignacion. El Id %s es de tipo %s y se le quiere asignar un Id de tipo %s ",auxId,tipo, tipo2);
+					mostrarError(msj);
+				}else {
+					apilar(&asignaciones,auxId);
+				}
 			}
-			
 			
 			printf("ID en FACTOR es: %s \n", $<str_val>$);
 			char aux[100];
@@ -824,19 +840,21 @@ factor:
 			char auxId[100];
 			char aux2[100];
 			desapilar(&asignaciones,auxId);
-			char tipo[11];
-			strcpy(aux2,"_@");
-			strcat(aux2,auxId);
-			strcpy(tipo,getTipoTOSID(aux2));	
-			if(strcmp(tipo, "ENTERO") != 0)
+			if(strcmp(auxId,"") != 0)
 			{
-				char msj[100];
-				sprintf(msj, "Error en la asignacion. El Id %s es de tipo %s y se le quiere asignar un valor de tipo ENTERO",auxId,tipo);
-				mostrarError(msj);
-			} else {
-				apilar(&asignaciones,auxId);
+				char tipo[11];
+				strcpy(aux2,"_@");
+				strcat(aux2,auxId);
+				strcpy(tipo,getTipoTOSID(aux2));	
+				if(strcmp(tipo, "ENTERO") != 0)
+				{
+					char msj[100];
+					sprintf(msj, "Error en la asignacion. El Id %s es de tipo %s y se le quiere asignar un valor de tipo ENTERO",auxId,tipo);
+					mostrarError(msj);
+				} else {
+					apilar(&asignaciones,auxId);
+				}
 			}
-			
 			printf("ENTERO en FACTOR es: %d \n", $<int_val>$);
 			char aux[100];
 			insertar_ENTERO_en_Tabla($<int_val>$,aux);
@@ -849,19 +867,21 @@ factor:
 			char auxId[100];
 			char aux2[100];
 			desapilar(&asignaciones,auxId);
-			char tipo[11];
-			strcpy(aux2,"_@");
-			strcat(aux2,auxId);
-			strcpy(tipo,getTipoTOSID(aux2));	
-			if(strcmp(tipo, "REAL") != 0)
+			if(strcmp(auxId,"") != 0)
 			{
-				char msj[100];
-				sprintf(msj, "Error en la asignacion. El Id %s es de tipo %s y se le quiere asignar un valor de tipo REAL ",auxId,tipo);
-				mostrarError(msj);
-			}else {
-				apilar(&asignaciones,auxId);
+				char tipo[11];
+				strcpy(aux2,"_@");
+				strcat(aux2,auxId);
+				strcpy(tipo,getTipoTOSID(aux2));	
+				if(strcmp(tipo, "REAL") != 0)
+				{
+					char msj[100];
+					sprintf(msj, "Error en la asignacion. El Id %s es de tipo %s y se le quiere asignar un valor de tipo REAL ",auxId,tipo);
+					mostrarError(msj);
+				}else {
+					apilar(&asignaciones,auxId);
+				}
 			}
-			
 			printf("REAL en FACTOR es: %f \n", $<float_val>$);
 			char aux[100];
 			insertar_REAL_en_Tabla($<float_val>$,aux);

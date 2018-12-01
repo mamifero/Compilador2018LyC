@@ -28,6 +28,7 @@ void apilar(Pila *pila, char *v){
 
 void desapilar(Pila *pila, char *v){
 	if(pila->tope == NULL){
+		strcpy(v, "");
 		return;
 	}
 	pNodoPila aux;

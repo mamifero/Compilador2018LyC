@@ -40,6 +40,7 @@ Lista polacaInversa;
 Pila pValores;
 Pila idsDeclarados;
 Pila asignaciones;
+Pila tiposCondiciones;
 	
 int buscarEnTOS(char*);
 int buscarEnTOSID(char*);
@@ -293,8 +294,25 @@ evaluable:
 	| condicion_multiple;
 
 condicion_simple: 
-	expresion comparador expresion {	
+	 { vaciarPila(&tiposCondiciones);} expresion comparador expresion {	
 		
+		char tipo[11];
+		char tipoAnterior[11];
+		desapilar(&tiposCondiciones,tipo);
+		while(strcmp(tipo,"") != 0) 
+		{
+			strcpy(tipoAnterior,tipo);
+			desapilar(&tiposCondiciones,tipo);
+		   if(strcmp(tipo,"") != 0)
+		   {
+			   if(strcmp(tipo,tipoAnterior) != 0)
+			   {
+					char msj[100];
+					strcpy(msj,"Error, diferentes tipos de datos en condicion.");
+					mostrarError(msj);
+			   }
+		   }
+		}
 		insertarPolaca(&polacaInversa, "CMP");
 		}
 	| operacion_between 
@@ -451,9 +469,12 @@ operacion_between:
 				sprintf(msj,"El ID %s se utiliza aqui pero no fue declarado.",$<str_val>3);
 				mostrarError(msj);
 			}
+			vaciarPila(&tiposCondiciones);
+			
 			strcpy(aux,"_@");
 			strcat(aux,$<str_val>3);
 			strcpy(tipo,getTipoTOSID(aux));
+			apilar(&tiposCondiciones,tipo);
 			insertarPolacaTipo(&polacaInversa, aux, tipo);
 			strcpy(auxBetween,aux);
 			
@@ -486,6 +507,23 @@ operacion_between:
 			char aux3 [100];
 			int auxInt;
 			
+			char tipo[11];
+			char tipoAnterior[11];
+			desapilar(&tiposCondiciones,tipo);
+			while(strcmp(tipo,"") != 0) 
+			{
+				strcpy(tipoAnterior,tipo);
+				desapilar(&tiposCondiciones,tipo);
+				if(strcmp(tipo,"") != 0)
+				{
+				   if(strcmp(tipo,tipoAnterior) != 0)
+				   {
+						char msj[100];
+						strcpy(msj,"Error, diferentes tipos de datos en condicion.");
+						mostrarError(msj);
+				   }
+				}
+			}
 			insertarPolaca(&polacaInversa, "CMP");
 			insertarPolaca(&polacaInversa, "BLE");
 			sprintf(aux,"%d",cantPolaca+6); 
@@ -536,9 +574,16 @@ operacion_inlist:
 			sprintf(msj,"El ID %s se utiliza aqui pero no fue declarado.",$<str_val>3);
 			mostrarError(msj);
 		}
+		
+		vaciarPila(&tiposCondiciones);
+
+			
+		char tipo[11];
 		char aux[100];
 		strcpy(aux,"_@");
 		strcat(aux,$<str_val>3);
+		strcpy(tipo,getTipoTOSID(aux));
+		apilar(&tiposCondiciones,tipo);
 		apilar(&pValores, aux);
 		contInlist=0;
 	}
@@ -552,6 +597,25 @@ operacion_inlist:
 			char aux3[100];
 			char aux4[100];
 			int auxInt;
+			
+			char tipo[11];
+			char tipoAnterior[11];
+			desapilar(&tiposCondiciones,tipo);
+			while(strcmp(tipo,"") != 0) 
+			{
+				strcpy(tipoAnterior,tipo);
+				desapilar(&tiposCondiciones,tipo);
+				if(strcmp(tipo,"") != 0)
+				{
+				   if(strcmp(tipo,tipoAnterior) != 0)
+				   {
+						char msj[100];
+						strcpy(msj,"Error, diferentes tipos de datos en condicion.");
+						mostrarError(msj);
+				   }
+				}
+			}
+			
 			desapilar(&pValores,aux); // obtengo el ID
 			insertarPolaca(&polacaInversa, "0");
 			insertarPolaca(&polacaInversa, "1");
@@ -630,6 +694,7 @@ asignacion:
 				sprintf(msj,"El ID %s se utiliza aqui pero no fue declarado.",$<str_val>1);
 				mostrarError(msj);
 			}
+			printf("ASIGNACION ID %s \n",$<str_val>1);
 			apilar(&asignaciones,$<str_val>1);
 			char tipo[11];
 			char aux[100];
@@ -644,6 +709,7 @@ asignacion:
 		} 
 	asignable
 		{
+			vaciarPila(&asignaciones);
 			insertarPolaca(&polacaInversa, "=");
 		};
       
@@ -805,7 +871,13 @@ factor:
 			char tipo[11];
 			char auxId[100];
 			char aux2[100];
+			char tipo2[11];
+			strcpy(aux2,"_@");
+			strcat(aux2,$<str_val>$);
+			strcpy(tipo2,getTipoTOSID(aux2));
+			apilar(&tiposCondiciones, tipo2);
 			desapilar(&asignaciones,auxId);
+			printf("ID3 %s \n", $<str_val>$);
 			if(strcmp(auxId,"") != 0)
 			{
 				printf(" ID2 %s \n",auxId);
@@ -813,10 +885,6 @@ factor:
 				strcpy(aux2,"_@");
 				strcat(aux2,auxId);
 				strcpy(tipo,getTipoTOSID(aux2));	
-				char tipo2[11];
-				strcpy(aux2,"_@");
-				strcat(aux2,$<str_val>$);
-				strcpy(tipo2,getTipoTOSID(aux2));
 				if(strcmp(tipo, tipo2) != 0)
 				{
 					char msj[100];
@@ -839,6 +907,7 @@ factor:
 		{
 			char auxId[100];
 			char aux2[100];
+			apilar(&tiposCondiciones, "ENTERO");
 			desapilar(&asignaciones,auxId);
 			if(strcmp(auxId,"") != 0)
 			{
@@ -866,6 +935,7 @@ factor:
 		
 			char auxId[100];
 			char aux2[100];
+			apilar(&tiposCondiciones, "REAL");
 			desapilar(&asignaciones,auxId);
 			if(strcmp(auxId,"") != 0)
 			{
@@ -904,6 +974,7 @@ int main(int argc,char *argv[])
 	pValores = crearPila();
 	idsDeclarados = crearPila();
 	asignaciones = crearPila();
+	tiposCondiciones = crearPila();
 
   if ((yyin = fopen(argv[1], "rt")) == NULL)
   {

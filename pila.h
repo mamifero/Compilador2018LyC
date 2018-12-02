@@ -22,3 +22,4 @@ void mostrarPila(Pila *p);
 int buscarEnPila(Pila *p, char *v);
 
 Pila crearPila();
+void vaciarPila(Pila *p);

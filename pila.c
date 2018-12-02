@@ -10,6 +10,12 @@ Pila crearPila()
    return pila;
 }
 
+void vaciarPila(Pila *pila)
+{
+   pila->base = NULL;
+   pila->tope = NULL;
+}
+
 void apilar(Pila *pila, char *v){
    /* Crear un nodo nuevo */
    pNodoPila nuevo = (pNodoPila)malloc(sizeof(tipoNodoPila));

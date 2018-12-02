@@ -28,7 +28,7 @@ COMENTARIOS				\-\/([^"\/\-"|"\-\/"]|\n)*\/\-
 COMENTARIOS_ANIDADOS	\-\/([^"\/\-"|"\-\/"]|\n)*{COMENTARIOS}*([^"\/\-"|"\-\/"]|\n)*\/\-
 
 
-REAL					(\-)?{DIGITO}*"."{DIGITO}+|{DIGITO}+"."
+REAL					(\-)?({DIGITO}*"."{DIGITO}+|{DIGITO}+".")
 ENTERO					(\-)?{DIGITO}+
 CADENA					\"[^"\n]*\"
 %%
